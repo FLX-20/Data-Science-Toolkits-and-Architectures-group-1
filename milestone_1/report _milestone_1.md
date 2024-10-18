@@ -63,7 +63,7 @@ So far, we have only prepared the images, which are ingested into the neural net
 ### 5.3 Building the Model 
 After the preparation of the data, the model is created. But before diving deeper into model in this code we need to gain an understanding how Neural Networks in general work.
 
-#### 6.3.1 How does a Neural Network work?
+#### 5.3.1 How does a Neural Network work?
 A fully connected vanilla neural network is a combination of several layers of perceptrons stacked on top of each other. 
 A perceptron can be understood as a linear threshold unit. If the weighted sum of an input vector exceeds a certain threshold 1 is returned otherwise 0. 
 A visualization with an equation is shown in the next figure.
@@ -83,6 +83,17 @@ This process can be split into two parts:
 - **backward propagation:** In the end the of the foreward propagation process the error is calculated. This error is then backpropagated through the network. The purpose of backpropagation is to compute the gradient of the loss function with respect to each weight in the network.  
 
 The overarching goal of the network during the learning phase is to decrease the final error by adjusting incremantly adjusting the weights of the network.   
+
+#### 6.3.2 What is a Convolutional Neural Network?
+A Convolutional Neural Network (CNN) is a type of Neural Network, which allows computers to recognize patterns/features in images, such as shapes and objects, by processing small parts of the image at a time. The first CNN was introduced in 1998 by Yann LeCun and hence was called LeNet. It was exactly developed for this task of image classification of the MNIST dataset. These special types of neural networks are required, because the task of pattern and object detection in images can barely be solved by vanilla fully connected Neural Networks, because they suffer from three problems.  
+- **Large Number of weights:** If every pixel of an image is treated as an input, you end up with a large number of weights. An input image of the size 28x28 would result in 784 weights per node for each node in the first hidden layer. This requires too much computation to update all weights during backpropagation and thus scales terribly with the size of the image.
+- **Not resistant against shifts:** If the objects or patterns in the test images are shifted by a few pixels compared to the images in the training set, the objects inside the images might not be recognizable anymore for the NN. 
+- **Correlation between the pixels is not taken into accout:** There is a high probability that the pixel, which is surrounded by white pixels is also white or close to pure white.
+CNNs provide a remedy for these problems by reducing the number of input nodes of the final fully connected.
+
+The process of convolution in images is represented in the following image.   
+![convolutional filter example 1](/milestone_1/images/convolution_filter_example_1.jpeg)
+![convolutional filter example 2](/milestone_1/images/convolution_filter_example_2.jpeg)
 
 ## 6. Adding Documentation
 
