@@ -60,6 +60,30 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 ```
 So far, we have only prepared the images, which are ingested into the neural network. But to train the neural network, labels are also required because we are dealing with a supervised learning task. The labels of the images are stored in the `y_train` and `y_test` datasets. In the beginning, these labels are stored as integer values referring to the appropriate class. Computation speed can be increased by converting these integer values into categorical values, which should be predicted by the neural network. Exactly this is done in the above code block with the [`to_categorical()`](https://www.tensorflow.org/api_docs/python/tf/keras/utils/to_categorical) function.
 
+### 5.3 Building the Model 
+After the preparation of the data, the model is created. But before diving deeper into model in this code we need to gain an understanding how Neural Networks in general work.
+
+#### 6.3.1 How does a Neural Network work?
+A fully connected vanilla neural network is a combination of several layers of perceptrons stacked on top of each other. 
+A perceptron can be understood as a linear threshold unit. If the weighted sum of an input vector exceeds a certain threshold 1 is returned otherwise 0. 
+A visualization with an equation is shown in the next figure.
+![Perceptron](https://www.nomidl.com/wp-content/uploads/2022/04/image-5.png)  
+The supervised training algorithm of the perceptron can be used to separate any binary, linear separable dataset.
+In this training phase the weights $w_n$ are learned to separate the two classes from each other. 
+However, the perceptron learning algorithm will never converge for no linear separable data, which can occur quite often in the real world.
+One solution for the problem is Neural Networks, which we discuss in this report.
+The Universal approximation theorem states, that a simple neural network with only one hidden layer, like in the next figure, is able to approximate any given continuous function in a finite interval. 
+This approximation increases with the number of perceptrons/neurons in this layer. 
+Moreover, the activation function has to be non-linear, because the composition of many linear functions remains a linear function, but non-linearity is needed to approximate any function.  
+We refer to the term deep neural network as to network with many hidden layers, which are responsible for detecting different features in the data.  
+![Simple NN & Deep NN](https://www.dilepix.com/hs-fs/hubfs/schema-neural-network.png?width=728&name=schema-neural-network.png)  
+After getting an idea of the strucuture of the Neural Network, we continue understanding the training process better.
+This process can be split into two parts:
+- **foreward propagation:** The input is passed from the input layer to the output layer through the entire network with its nodes and activation functions.
+- **backward propagation:** In the end the of the foreward propagation process the error is calculated. This error is then backpropagated through the network. The purpose of backpropagation is to compute the gradient of the loss function with respect to each weight in the network.  
+
+The overarching goal of the network during the learning phase is to decrease the final error by adjusting incremantly adjusting the weights of the network.   
+
 ## 6. Adding Documentation
 
 ## 7. Creating a folder for this milestone
