@@ -54,6 +54,7 @@ git commit
 ```
 If you execute the command a window in your default text editor will open. In the first line write down the commit message. Then leave one line out and write a more detailed description of your commit in several sentences and lines, so that everybody can understand what you have done.
 After saving the commit messages and closing the editor the changes are committed. 
+
 ### 3.4 Pushing and Pulling 
 So far we only have made changes to our local system. If we want to save our changes in the GitHub cloud we need to push them. 
 ```
@@ -69,6 +70,19 @@ If you know that someone else has made changes to the repository, you should pul
 ```
 git pull origin <branch_name>
 ```
+
+### 3.5 Setting rules in Github
+In chapter 3.2 it was already mentioned that working on the main branch is not a good habit. 
+Thus, it is important to control exactly what is added to this branch. For this reason, we attached a branch protection rule to this important branch, which prevents unauthorized merges into the main branch. The rule set. This rule enforces an assigned reviewer to approve the changes before the merge is executed. The rule was set up in the following way.
+- click on **Settings**
+- click on **Bracnches** in the left sidebar
+- click on the button **Add branch ruleset**
+- enter a name for the rule
+- select a target branch (default main branch)
+- select **Require a pull request before merging** in button part of the page
+- enable the rule at the top part of the page in the dropdown menu **enforcement status**
+- click on **create** to apply the rule
+
 ## 4. Running Python Code
 
 ## 5. Explaining Convolutional Neural Networks
