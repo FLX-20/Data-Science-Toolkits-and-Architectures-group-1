@@ -35,7 +35,7 @@ If you want to delete a branch use the next command.
 git branch -d <branch_name>
 ```
 
-### 3.3 Stanging and Commiting changes
+### 3.3 Staging and Commiting changes
 After the creation of the new branch, you can start making changes and adding new code.
 
 While making changes it is always important to push your stages regularly, so you can jump back if you should have messed something up.
@@ -54,8 +54,21 @@ git commit
 ```
 If you execute the command a window in your default text editor will open. In the first line write down the commit message. Then leave one line out and write a more detailed description of your commit in several sentences and lines, so that everybody can understand what you have done.
 After saving the commit messages and closing the editor the changes are committed. 
+### 3.4 Pushing and Pulling 
+So far we only have made changes to our local system. If we want to save our changes in the GitHub cloud we need to push them. 
+```
+git push origin <branch_name>
+```
+In case you are pushing for the first time from a new branch, you can set an upstream branch. Then Git will know which remote branch the local branch tracks, which allows you to push changes only with  `git push`.
+```
+git push --set-upstream origin <branch-name>
+```
+The term `origin ' refers to the name of the remote repository. In most cases, when you clone a repository from GitHub, Git automatically names its origin. 
 
-
+If you know that someone else has made changes to the repository, you should pull the latest version to stay up to date.
+```
+git pull origin <branch_name>
+```
 ## 4. Running Python Code
 
 ## 5. Explaining Convolutional Neural Networks
