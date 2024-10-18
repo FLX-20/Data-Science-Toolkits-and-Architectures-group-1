@@ -14,7 +14,7 @@
 ## 5. Explaining Convolutional Neural Networks
 The provided program code in the Git repository is an implementation of a simple **Convolutional Neural Network (CNN)** for image classification, in this case, the classification of the famous **MNIST dataset**, which is introduced in [section 2](##MNIST-Dataset)
 
-### 6.1 Setup part
+### 5.1 Setup part
 In the setup section of the code, the required packages are loaded.
 ```python
 import numpy as np
@@ -28,6 +28,37 @@ Today, Keras is fully integrated into **TensorFlow 2.0**. This allows you to bui
 ModuleNotFoundError: No module named 'tensorflow'
 ```
 In the last line, the layers module of Keras is imported, which allows different types of layers to be used in the program code.
+
+### 5.2 Data Preparation Part
+```python
+num_classes = 10
+input_shape = (28, 28, 1)
+
+(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+```
+In the subsequent part of the code, the data is prepared and loaded. There are ten classes because the MNIST dataset includes ten different digits from zero to nine. Each grayscale digit image in the dataset has a size of 28 by 28 pixels. Thus, every pixel has a value between 0 (black) and 255 (white). For this reason, the last value in the tuple `input_shape` is 1, because only two dimensions are needed in this case.  
+In the last line of the code above, the MNIST dataset is loaded from the Keras library with the [load_data function](https://keras.io/api/datasets/mnist/). he function returns two tuples. One tuple contains the training set with 60,000 images. The other tuple includes the test set with 10,000 images. In the end, the test set is used after training the model to evaluate the built and trained neural network. All these 70,000 images in both datasets are saved as NumPy arrays, which allow for more efficient calculations.
+```python
+x_train = x_train.astype("float32") / 255
+x_test = x_test.astype("float32") / 255
+
+x_train = np.expand_dims(x_train, -1)
+x_test = np.expand_dims(x_test, -1)
+```
+In the following part of the data preparation, the pixel values of the images are normalized. The division by 255 scales each integer pixel value from a range between 0 and 255 to a range between 0 and 1. Before this calculation, the data type of each pixel is changed from an integer to a floating-point data type. Without this explicit data type conversion, Python would automatically do an implicit data type conversion into a float64. This data type uses 64 bits to represent floating-point numbers, which is twice as much as the suggested method in the code. These normalizations improve convergence speed, avoid overflows in calculations, and are more suitable for activation functions like sigmoid or ReLU.  
+In the next code block, an extra dimension is added to the input images of the training and test sets with the help of the [expand_dims](https://numpy.org/doc/2.0/reference/generated/numpy.expand_dims.html) function. This is necessary because many deep learning models require a parameter that defines the channel dimension. In this case, the channel dimension is one, because grayscale images only have one channel. If we were dealing with RGB images, we would have three channels.
+```python
+print("x_train shape:", x_train.shape)
+print(x_train.shape[0], "train samples")
+print(x_test.shape[0], "test samples")
+```
+After preparing the input data, the final shape of the training input tuple `x_train` is printed out. It shows `(60000, 28, 28, 1)` as the shape output, meaning it includes 60,000 images with a height and a width of 28 pixels and 1 channel.
+Afterward, the number of test and training images is printed out. In the dataset, there are 60,000 training and 10,000 test samples.
+```python
+y_train = keras.utils.to_categorical(y_train, num_classes)
+y_test = keras.utils.to_categorical(y_test, num_classes)
+```
+So far, we have only prepared the images, which are ingested into the neural network. But to train the neural network, labels are also required because we are dealing with a supervised learning task. The labels of the images are stored in the `y_train` and `y_test` datasets. In the beginning, these labels are stored as integer values referring to the appropriate class. Computation speed can be increased by converting these integer values into categorical values, which should be predicted by the neural network. Exactly this is done in the above code block with the [`to_categorical()`](https://www.tensorflow.org/api_docs/python/tf/keras/utils/to_categorical) function.
 
 ## 6. Adding Documentation
 
