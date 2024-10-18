@@ -22,11 +22,11 @@ If you want to make changes in the repo it is a good habit to create a new branc
 ```
 git branch <name_of_branch>
 ```
-Check if the branch was successfully create with the next command, which returns all branches in your current local repo.
+Check if the branch was successfully created with the next command, which returns all branches in your current local repo.
 ```
 git branch
 ```
-You can change the branch, in which your are currently working with:
+You can change the branch, in which you are currently working with the next line.
 ```
 git switch <name_of_branch>
 ```
@@ -34,6 +34,26 @@ If you want to delete a branch use the next command.
 ```
 git branch -d <branch_name>
 ```
+
+### 3.3 Stanging and Commiting changes
+After the creation of the new branch, you can start making changes and adding new code.
+
+While making changes it is always important to push your stages regularly, so you can jump back if you should have messed something up.
+
+First check the status of the repo to see, which files have been changed.
+```
+git status
+```
+Then stage the files, which you want to commit. 
+```
+git add <file_name>
+```
+After staging, you can commit your changes to the repository.
+```
+git commit
+```
+If you execute the command a window in your default text editor will open. In the first line write down the commit message. Then leave one line out and write a more detailed description of your commit in several sentences and lines, so that everybody can understand what you have done.
+After saving the commit messages and closing the editor the changes are committed. 
 
 
 ## 4. Running Python Code
