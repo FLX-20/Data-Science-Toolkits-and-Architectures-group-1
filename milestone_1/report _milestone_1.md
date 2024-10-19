@@ -84,7 +84,7 @@ This process can be split into two parts:
 
 The overarching goal of the network during the learning phase is to decrease the final error by adjusting incremantly adjusting the weights of the network.   
 
-#### 6.3.2 What is a Convolutional Neural Network?
+#### 5.3.2 What is a Convolutional Neural Network?
 A Convolutional Neural Network (CNN) is a type of Neural Network, which allows computers to recognize patterns/features in images, such as shapes and objects, by processing small parts of the image at a time. The first CNN was introduced in 1998 by Yann LeCun and hence was called LeNet. It was exactly developed for this task of image classification of the MNIST dataset. These special types of neural networks are required, because the task of pattern and object detection in images can barely be solved by vanilla fully connected Neural Networks, because they suffer from three problems.  
 - **Large Number of weights:** If every pixel of an image is treated as an input, you end up with a large number of weights. An input image of the size 28x28 would result in 784 weights per node for each node in the first hidden layer. This requires too much computation to update all weights during backpropagation and thus scales terribly with the size of the image.
 - **Not resistant against shifts:** If the objects or patterns in the test images are shifted by a few pixels compared to the images in the training set, the objects inside the images might not be recognizable anymore for the NN. 
@@ -97,6 +97,37 @@ The process of convolution in images is represented in the following image.
 
 The CNN finds the appropriate weights/values for the kernels that are used in the convolution process on its own via backpropagation.
 In the past, scientists manually developed kernels to detect image patterns, for instance, with kernels for edge detection. Nowadays, convolutional neural networks can find kernels that provide far better results.
+
+## 5.3.3 Explanation of the CNN code
+Now, after explaining shortly the idea for NN and CNN, we will continue going through the code.
+```python
+model = keras.Sequential(
+    [
+        keras.Input(shape=input_shape),
+        layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
+        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
+        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Flatten(),
+        layers.Dropout(0.5),
+        layers.Dense(num_classes, activation="softmax"),
+    ]
+)
+
+model.summary()
+```
+The [`Sequential()`](https://keras.io/guides/sequential_model/) function provides a simple way to build a neural network layer by layer. The name sequential comes from the design principle that the layers are stacked one after another. The constructor/function takes a list as an input, describing the structure of the neural network, and returns a sequential model object.    
+The first defined layer in the list is the input layer. It describes the input of the network. The input shape was determined at the beginning of the code in `input_shape`.  
+The consecutive layers are a stack of convolutional layers, max-pooling layers, and the non-linear ReLU activation function, which gives convolutional neural networks their capability to detect patterns and objects in images.   
+- **Convolutional layers**: Detect features within the images.
+- **Pooling layers**: Reduce the spatial dimensions of the data.
+- **Flatten layer**: Converts the 2D matrix data into a vector.
+- **Dropout layer**: Prevents overfitting by randomly dropping units during training
+- **Dense layer**: Fully connected layer for output prediction using the softmax   activation function. 
+
+All these layers were already summarized in the image above, showing a convolutional filter example. The only new thing is the dropout part. Dropout is a type of regularizer, which randomly drops/leaves out neurons in the training process. Each neuron is retained with a probability of p. Halff of the fully connected network is dropped out while training. This improves the CNN's performance to also classify unseen data with high accuracy after training because the network relies more on the presence of certain neurons.  
+
+
 
 ## 6. Adding Documentation
 
