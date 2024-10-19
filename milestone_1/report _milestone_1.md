@@ -95,6 +95,9 @@ The process of convolution in images is represented in the following image.
 ![convolutional filter example 1](/milestone_1/images/convolution_filter_example_1.jpeg)
 ![convolutional filter example 2](/milestone_1/images/convolution_filter_example_2.jpeg)
 
+The CNN finds the appropriate weights/values for the kernels that are used in the convolution process on its own via backpropagation.
+In the past, scientists manually developed kernels to detect image patterns, for instance, with kernels for edge detection. Nowadays, convolutional neural networks can find kernels that provide far better results.
+
 ## 6. Adding Documentation
 
 ## 7. Creating a folder for this milestone
