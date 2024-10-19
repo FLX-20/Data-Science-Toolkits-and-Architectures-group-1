@@ -148,6 +148,18 @@ The method `compile` prepares the model of training by setting the loss function
 
 Finally, in the last line, the model is trained based on the setting before, using the `fit` method.
 
+### 5.5 Evaluating the model
+At the end of the code, the built and trained model is evaluated with the unseen test data. This can be done with the `evaluate()` method of Keras. This method returns a list with two values. The first value is the test loss. The second value is the test accuracy.
+$$
+Accuracy = \frac{\text{Number of Correct Predictions}}{\text{Total Number of Predictions}}
+$$
+While accuracy measures how often the model makes the correct prediction, loss measures how far the predictions are from the true values.
+A small loss and a high accuracy give evidence of a well-trained model, if the dataset is balanced.
+```python
+score = model.evaluate(x_test, y_test, verbose=0)
+print("Test loss:", score[0])
+print("Test accuracy:", score[1])
+```
 
 ## 6. Adding Documentation
 
