@@ -127,6 +127,26 @@ The consecutive layers are a stack of convolutional layers, max-pooling layers, 
 
 All these layers were already summarized in the image above, showing a convolutional filter example. The only new thing is the dropout part. Dropout is a type of regularizer, which randomly drops/leaves out neurons in the training process. Each neuron is retained with a probability of p. Halff of the fully connected network is dropped out while training. This improves the CNN's performance to also classify unseen data with high accuracy after training because the network relies more on the presence of certain neurons.  
 
+### 5.4 Train the model
+After defining the strucuture of the model the trainig phase can be started.
+```python
+batch_size = 128
+epochs = 15
+
+model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+
+model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
+```
+
+Before the training process is started two variables are initialized. 
+- The **batch size** defines the number of samples/images that the model will process before updating the weights.
+- The number of **epochs** defines how many times the model goes through the entire training set.
+
+The method `compile` prepares the model of training by setting the loss function, the optimizer and the metrics, that should be tracked while training.
+- The categorical cross-entropy loss is commonly used for classification problems. It measures how far off the prediction is from the true value. The error is then backpropagated through the CNN. In the case of a regression problem, the mean squared error is a common choice as a loss function.
+- The optimizer describes how the parameters/weights during backpropagation are updated. The [Adam](https://arxiv.org/abs/1412.6980) optimizer is a common choice, which works best in many cases. 
+
+Finally, in the last line, the model is trained based on the setting before, using the `fit` method.
 
 
 ## 6. Adding Documentation
