@@ -85,7 +85,9 @@ This process can be split into two parts:
 The overarching goal of the network during the learning phase is to decrease the final error by adjusting incremantly adjusting the weights of the network.   
 
 #### 5.3.2 What is a Convolutional Neural Network?
-A Convolutional Neural Network (CNN) is a type of Neural Network, which allows computers to recognize patterns/features in images, such as shapes and objects, by processing small parts of the image at a time. The first CNN was introduced in 1998 by Yann LeCun and hence was called LeNet. It was exactly developed for this task of image classification of the MNIST dataset. These special types of neural networks are required, because the task of pattern and object detection in images can barely be solved by vanilla fully connected Neural Networks, because they suffer from three problems.  
+A Convolutional Neural Network (CNN) is a type of Neural Network, which allows computers to recognize patterns/features in images, such as shapes and objects, by processing small parts of the image at a time. The first CNN was introduced in 1998 by Yann LeCun and hence was called LeNet. It was exactly developed for this task of image classification of the MNIST dataset and is represented in the next image.  
+![Convolutional Neural Net](https://d2l.ai/_images/lenet.svg)  
+These special types of neural networks are required, because the task of pattern and object detection in images can barely be solved by vanilla fully connected Neural Networks, because they suffer from three problems.  
 - **Large Number of weights:** If every pixel of an image is treated as an input, you end up with a large number of weights. An input image of the size 28x28 would result in 784 weights per node for each node in the first hidden layer. This requires too much computation to update all weights during backpropagation and thus scales terribly with the size of the image.
 - **Not resistant against shifts:** If the objects or patterns in the test images are shifted by a few pixels compared to the images in the training set, the objects inside the images might not be recognizable anymore for the NN. 
 - **Correlation between the pixels is not taken into accout:** There is a high probability that the pixel, which is surrounded by white pixels is also white or close to pure white.
@@ -161,7 +163,7 @@ print("Test loss:", score[0])
 print("Test accuracy:", score[1])
 ```
 
-### 6.6 Resources
+### 5.6 Resources
 Of course, it is not possible to explain every detail of NNs, CNNs and the related libraries in such a short report, this is why we provided these links to our sources for further reading.
 
 **Beginner material**
