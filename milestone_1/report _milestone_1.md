@@ -161,6 +161,19 @@ print("Test loss:", score[0])
 print("Test accuracy:", score[1])
 ```
 
+### 6.6 Resources
+Of course, it is not possible to explain every detail of NNs, CNNs and the related libraries in such a short report, this is why we provided these links to our sources for further reading.
+
+**Beginner material**
+- [But what is a neural network? | Chapter 1, Deep learning](https://www.youtube.com/watch?v=aircAruvnKk)
+- [Gradient descent, how neural networks learn | Chapter 2, Deep learning](https://www.youtube.com/watch?v=IHZwWFHWa-w)
+- [What is backpropagation really doing? | Chapter 3, Deep learning](https://www.youtube.com/watch?v=Ilg3gGewQ5U)
+- [Backpropagation calculus | Chapter 4, Deep learning](https://www.youtube.com/watch?v=tIeHLnjs5U8)
+
+**Advanced Material** 
+- [Learning From Data (Yaser S. Abu-Mostafa)](https://amlbook.com/)
+- [Dive into Deep Learning](https://d2l.ai/)
+
 ## 6. Adding Documentation
 
 ## 7. Creating a folder for this milestone
