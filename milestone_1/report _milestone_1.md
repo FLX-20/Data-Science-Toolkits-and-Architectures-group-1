@@ -2,18 +2,15 @@
 
 
 ## 0. Setting up a Virtual Machine with Ubuntu
-We downloaded the Virtual Machine (https://www.virtualbox.org/wiki/Downloads)
-choosing the Linux distribution. 
-Afterwards we downloaded the Ubuntu desktop on the official website (https://ubuntu.com/download/desktop)
+We downloaded the [Virtual Machine](https://www.virtualbox.org/wiki/Downloads) for Windows to run Ubuntu on this VM.
+Afterwards, we downloaded the Ubuntu desktop on the official [website](https://ubuntu.com/download/desktop).
 When we set up the Ubuntu desktop in the Virtual Machine we used the ISO we got from downloading Ubuntu.
-As type we used 'Linux' and as subtype 'Ubuntu' selecting the version we downloaded, in our case Ubuntu 24.04 LTS.
-After we finished the steps above we waited for the Virtual Machine to boot up.
+As type we selcted 'Linux', as subtype 'Ubuntu' and selected the version we downloaded, in our case Ubuntu 24.04 LTS.
+After we finished the steps above we waited for the Virtual Machine to boot up and followed the installtion guide of Ubuntu.
 
 ### 0.1 Installing VS Code 
-What is VS Code, and how did we installed it? VS Code is a source code editor in which you can open multiple tabs.
-Furthermore, VS Code has a build-in support for Git, which will make it easy for us to commit code, 
-create branches, and push/pull to our Github repo from VS Code. 
-We installed VS Code through the App Center in the Ubuntu server on the Virtual Machine.
+VS Code is a source code editor which supports you by writing code.
+We installed VS Code through the App Center of Ubuntu on the Virtual Machine.
 
 ### 0.2 Install Python extension in VS Code
 First, we need to ensure if Python is already installed on the Linux system.
@@ -22,11 +19,11 @@ In the terminal we get an error message that it is not installed so we use
 ```
 sudo apt install python3
 ```
-Afterwards we use `sudo apt update` to update to the latest python version possible,
+Afterwards we use `sudo apt update` to update our system and at the same time python to the latest version,
 which is Python 3.12.0.
 
 ### 0.3 Install Git extension in VS Code
-To install Git on VS Code we used 
+To install Git on VS Code we used:
 ```
 sudo apt install git
 ```
@@ -34,14 +31,11 @@ sudo apt install git
 ### 0.4 Creating a new directory on Ubuntu
 Before making a new directory on Ubuntu we first see in which 
 directory we are currently working so we use `pwd`.
-We want to make a new working directory which will be called DSTA, 
-referring to the name of the course.
-To make this directory we used the code.
+We want to make a new working directory which will be called DSTA, referring to the name of the course.
 ```
 mkdir DSTA
 ```
 If we want to make changes in that directory we use `cd DSTA` to set our working directory to that folder.
-In the terminal we also see now that we are working in the DSTA folder.
 
 ### 0.5 Making changes in Git
 Eventually we want to make changes that will be visible in our repositorty on Github.
@@ -54,15 +48,10 @@ cd Data-Science-Toolkits-and-Architectures-group-1
 ```
 Now all the changes we make for all the files will be in the current directory.
 
-
-
-
-
-
 ## 1. MNIST-Dataset
 
 ### 1.1 Introduction
-First, we decided to read about the dataset in another way, because our browsers notified us about potential security and privacy risks. Our alternative sources were: previous lectures and tutorials, Kaggle, TensorFlow, and Wikipedia for a brief initial overview.
+First, we decided to read about the dataset in another way, because our browsers notified us about potential security and privacy risks. Our alternative sources were: previous lectures and [tutorials](https://www.geeksforgeeks.org/mnist-dataset/), [Kaggle](https://www.kaggle.com/datasets/hojjatk/mnist-dataset), [TensorFlow](https://www.tensorflow.org/datasets/catalog/mnist), and [Wikipedia](https://en.wikipedia.org/wiki/MNIST_database) for a brief initial overview.
 
 The dataset is about handwritten numbers, or rather their depictions. The data points were aggregated from different official US institutions such as high schools and the US Census Bureau, or rather the hand-filled documents of their students and employees, respectively. This led to differing qualities when it comes to clearness or rather noise in the data points—hence, mixing these "Special Databases," especially 1 and 3, was necessary in order to ensure the derivation of logical conclusions from the empirical evidence.
 
@@ -90,7 +79,7 @@ You can copy a GitHub repository on your machine using the following command.
 ```shell
 git clone https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1.git
 ```
-It clones/copes all files, commits history and branches from the repository located in the cloud on Git Hub into a new directory on your computer. Thus it creates a local copy of the project.
+It clones/copies all files, commits history and branches from the repository located in the cloud on Git Hub into a new directory on your computer. Thus it creates a local copy of the project.
 
 ### 3.2 Creating Branches
 If you want to make changes in the repo it is a good habit to create a new branch. It is not recommended that changes be made directly at the main branch. You can create a new branch with the following command.
@@ -190,7 +179,7 @@ input_shape = (28, 28, 1)
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 ```
 In the subsequent part of the code, the data is prepared and loaded. There are ten classes because the MNIST dataset includes ten different digits from zero to nine. Each grayscale digit image in the dataset has a size of 28 by 28 pixels. Thus, every pixel has a value between 0 (black) and 255 (white). For this reason, the last value in the tuple `input_shape` is 1, because only two dimensions are needed in this case.  
-In the last line of the code above, the MNIST dataset is loaded from the Keras library with the [load_data function](https://keras.io/api/datasets/mnist/). he function returns two tuples. One tuple contains the training set with 60,000 images. The other tuple includes the test set with 10,000 images. In the end, the test set is used after training the model to evaluate the built and trained neural network. All these 70,000 images in both datasets are saved as NumPy arrays, which allow for more efficient calculations.
+In the last line of the code above, the MNIST dataset is loaded from the Keras library with the [load_data function](https://keras.io/api/datasets/mnist/). The function returns two tuples. One tuple contains the training set with 60,000 images. The other tuple includes the test set with 10,000 images. In the end, the test set is used after training the model to evaluate the built and trained neural network. All these 70,000 images in both datasets are saved as NumPy arrays, which allow for more efficient calculations.
 ```python
 x_train = x_train.astype("float32") / 255
 x_test = x_test.astype("float32") / 255
@@ -247,8 +236,8 @@ These special types of neural networks are required, because the task of pattern
 CNNs provide a remedy for these problems by reducing the number of input nodes of the final fully connected.
 
 The process of convolution in images is represented in the following image.   
-![convolutional filter example 1](/milestone_1/images/convolution_filter_example_1.jpeg)
-![convolutional filter example 2](/milestone_1/images/convolution_filter_example_2.jpeg)
+![convolutional filter example 1](images/convolution_filter_example_1.jpeg)
+![convolutional filter example 2](images/convolution_filter_example_2.jpeg)
 
 The CNN finds the appropriate weights/values for the kernels that are used in the convolution process on its own via backpropagation.
 In the past, scientists manually developed kernels to detect image patterns, for instance, with kernels for edge detection. Nowadays, convolutional neural networks can find kernels that provide far better results.
@@ -334,7 +323,7 @@ The README.md, which is always shown on the first page of the repo, was extended
 
 ## 7. Creating a folder for this milestone
 In the folder [milsone_1](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/tree/main/milestone_1), one can find the report of the milestone written in markdown, the pdf-file of the milestone task and the python code of the CNN.
-We learnt makrdown with this short [markdowm introduction guide](https://www.markdownguide.org/getting-started/) and [overview page](https://www.markdownguide.org/basic-syntax/).
+We learnt markdown with this short [markdowm introduction guide](https://www.markdownguide.org/getting-started/) and [overview page](https://www.markdownguide.org/basic-syntax/).
 
 ## 8. Problem in this milestone
 The main issue was to set up a functional environment for all team members, enabling them to write code, operate in the terminal, and collaborate effectively.
@@ -349,7 +338,7 @@ In the end, Tjerk started using the Ubuntu APP and Felix uses dual Boot to run b
 Tjerk integrated the Ubuntu App terminal into VSCode, by replacing the default Powershell with WSL.
 Afterwards, he was also able to run the code that his system crashed.
 
-Another large challenge of this milestone was familiarising Tim and Terjk with Linux, Git/GitHub, working in the terminal and the new coding environment because they never used it before. 
+Another large challenge of this milestone was familiarising Tim and Tjerk with Linux, Git/GitHub, working in the terminal and the new coding environment because they never used it before. 
 
 We ended up with the following system configuration for our next milestones.
 - Felix: Dual Boot Windows and Ubuntu system (already set up before the course)
