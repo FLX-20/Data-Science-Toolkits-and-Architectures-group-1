@@ -313,4 +313,6 @@ Of course, it is not possible to explain every detail of NNs, CNNs and the relat
 The README.md, which is always shown on the first page of the repo, was extended with all important information to run the code of the first milestone. Afterwards, we deleted the repo from our machine and tried to set up a local copy of the repo on our machines following the steps in the documentation. 
 
 ## 7. Creating a folder for this milestone
+In the folder [milsone_1](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/tree/main/milestone_1), one can find the report of the milestone written in markdown, the pdf-file of the milestone task and the python code of the CNN.
+We learnt makrdown with this short [markdowm introduction guide](https://www.markdownguide.org/getting-started/) and [overview page](https://www.markdownguide.org/basic-syntax/).
 
