@@ -59,6 +59,8 @@ The authors ensured that the  creators of the entries in the training and test s
 
 
 ## 2. Checking Git Code Base
+We downloaded the python-script from the [github-repo](https://github.com/keras-team/keras-io/blob/master/examples/vision/mnist_convnet.py) and tried to run it on our machines. 
+The summary of how to run it is summarized in the README.md file of our repo. The code from the repo is explained in detail in Chapter 5.
 
 ## 3. Git and Github workflow
 In this chapter we would like to write down our git and github workflow quickly, starting from with an empty folder.
@@ -137,6 +139,10 @@ Thus, it is important to control exactly what is added to this branch. For this 
 - click on **create** to apply the rule
 
 ## 4. Running Python Code
+A summary of how to run the python code of the provided repo is given in the `README.md` of this project. In general a python script is executed in the terminal in the follwoing way.
+```shell
+python3 script.py
+```
 
 ## 5. Explaining Convolutional Neural Networks
 The provided program code in the Git repository is an implementation of a simple **Convolutional Neural Network (CNN)** for image classification, in this case, the classification of the famous **MNIST dataset**, which is introduced in [section 2](##MNIST-Dataset)
