@@ -316,3 +316,24 @@ The README.md, which is always shown on the first page of the repo, was extended
 In the folder [milsone_1](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/tree/main/milestone_1), one can find the report of the milestone written in markdown, the pdf-file of the milestone task and the python code of the CNN.
 We learnt makrdown with this short [markdowm introduction guide](https://www.markdownguide.org/getting-started/) and [overview page](https://www.markdownguide.org/basic-syntax/).
 
+## 8. Problem in this milestone
+The main issue was to set up a functional environment for all team members, enabling them to write code, operate in the terminal, and collaborate effectively.
+
+The initial plan was to run Linux in a virtual Machine for all non-native UNIX users.
+However, after setting everything up properly, like it was described in Chapter 0, we came up with the conclusion that our laptops are not able to provide the required resources to work in the virtual environment smoothly without a lack and system crashes.
+The two alternative solutions were:
+- using Ubuntu directly on our laptops
+- using the Ubuntu App on Windows (WSL - Windows-Subsystem für Linux)
+
+In the end, Tjerk started using the Ubuntu APP and Felix uses dual Boot to run both Linux/Ubuntu and Windows on his laptop. 
+Tjerk integrated the Ubuntu App terminal into VSCode, by replacing the default Powershell with WSL.
+Afterwards, he was also able to run the code that his system crashed.
+
+Another large challenge of this milestone was familiarising Tim and Terjk with Linux, Git/GitHub, working in the terminal and the new coding environment because they never used it before. 
+
+We ended up with the following system configuration for our next milestones.
+- Felix: Dual Boot Windows and Ubuntu system (already set up before the course)
+- Tim: MacOS (no adjustments required)
+- Tjerk VSCode with integrated Ubuntu App terminal (WSL)
+Moreover, Terjk and Tim were taught and learned how to get along with the new working environment and tools.
+
