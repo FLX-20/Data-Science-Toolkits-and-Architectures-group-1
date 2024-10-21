@@ -139,6 +139,10 @@ Thus, it is important to control exactly what is added to this branch. For this 
 - click on **create** to apply the rule
 
 ## 4. Running Python Code
+A summary of how to run the python code of the provided repo is given in the `README.md` of this project. In general a python script is executed in the terminal in the follwoing way.
+```shell
+python3 script.py
+```
 
 ## 5. Explaining Convolutional Neural Networks
 The provided program code in the Git repository is an implementation of a simple **Convolutional Neural Network (CNN)** for image classification, in this case, the classification of the famous **MNIST dataset**, which is introduced in [section 2](##MNIST-Dataset)
