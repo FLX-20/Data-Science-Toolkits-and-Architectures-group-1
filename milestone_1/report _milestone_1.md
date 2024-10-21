@@ -9,10 +9,8 @@ As type we selcted 'Linux', as subtype 'Ubuntu' and selected the version we down
 After we finished the steps above we waited for the Virtual Machine to boot up and followed the installtion guide of Ubuntu.
 
 ### 0.1 Installing VS Code 
-VS Code is a source code editor in which you can open multiple tabs.
-Furthermore, VS Code has a build-in support for Git, which will make it easy for us to commit code, 
-create branches, and push/pull to our Github repo from VS Code. 
-We installed VS Code through the App Center in the Ubuntu server on the Virtual Machine.
+VS Code is a source code editor which supports you by writing code.
+We installed VS Code through the App Center of Ubuntu on the Virtual Machine.
 
 ### 0.2 Install Python extension in VS Code
 First, we need to ensure if Python is already installed on the Linux system.
@@ -81,7 +79,7 @@ You can copy a GitHub repository on your machine using the following command.
 ```shell
 git clone https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1.git
 ```
-It clones/copes all files, commits history and branches from the repository located in the cloud on Git Hub into a new directory on your computer. Thus it creates a local copy of the project.
+It clones/copies all files, commits history and branches from the repository located in the cloud on Git Hub into a new directory on your computer. Thus it creates a local copy of the project.
 
 ### 3.2 Creating Branches
 If you want to make changes in the repo it is a good habit to create a new branch. It is not recommended that changes be made directly at the main branch. You can create a new branch with the following command.
@@ -181,7 +179,7 @@ input_shape = (28, 28, 1)
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 ```
 In the subsequent part of the code, the data is prepared and loaded. There are ten classes because the MNIST dataset includes ten different digits from zero to nine. Each grayscale digit image in the dataset has a size of 28 by 28 pixels. Thus, every pixel has a value between 0 (black) and 255 (white). For this reason, the last value in the tuple `input_shape` is 1, because only two dimensions are needed in this case.  
-In the last line of the code above, the MNIST dataset is loaded from the Keras library with the [load_data function](https://keras.io/api/datasets/mnist/). he function returns two tuples. One tuple contains the training set with 60,000 images. The other tuple includes the test set with 10,000 images. In the end, the test set is used after training the model to evaluate the built and trained neural network. All these 70,000 images in both datasets are saved as NumPy arrays, which allow for more efficient calculations.
+In the last line of the code above, the MNIST dataset is loaded from the Keras library with the [load_data function](https://keras.io/api/datasets/mnist/). The function returns two tuples. One tuple contains the training set with 60,000 images. The other tuple includes the test set with 10,000 images. In the end, the test set is used after training the model to evaluate the built and trained neural network. All these 70,000 images in both datasets are saved as NumPy arrays, which allow for more efficient calculations.
 ```python
 x_train = x_train.astype("float32") / 255
 x_test = x_test.astype("float32") / 255
@@ -325,7 +323,7 @@ The README.md, which is always shown on the first page of the repo, was extended
 
 ## 7. Creating a folder for this milestone
 In the folder [milsone_1](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/tree/main/milestone_1), one can find the report of the milestone written in markdown, the pdf-file of the milestone task and the python code of the CNN.
-We learnt makrdown with this short [markdowm introduction guide](https://www.markdownguide.org/getting-started/) and [overview page](https://www.markdownguide.org/basic-syntax/).
+We learnt markdown with this short [markdowm introduction guide](https://www.markdownguide.org/getting-started/) and [overview page](https://www.markdownguide.org/basic-syntax/).
 
 ## 8. Problem in this milestone
 The main issue was to set up a functional environment for all team members, enabling them to write code, operate in the terminal, and collaborate effectively.
@@ -340,7 +338,7 @@ In the end, Tjerk started using the Ubuntu APP and Felix uses dual Boot to run b
 Tjerk integrated the Ubuntu App terminal into VSCode, by replacing the default Powershell with WSL.
 Afterwards, he was also able to run the code that his system crashed.
 
-Another large challenge of this milestone was familiarising Tim and Terjk with Linux, Git/GitHub, working in the terminal and the new coding environment because they never used it before. 
+Another large challenge of this milestone was familiarising Tim and Tjerk with Linux, Git/GitHub, working in the terminal and the new coding environment because they never used it before. 
 
 We ended up with the following system configuration for our next milestones.
 - Felix: Dual Boot Windows and Ubuntu system (already set up before the course)
