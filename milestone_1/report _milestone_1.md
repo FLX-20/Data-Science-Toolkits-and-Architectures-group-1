@@ -59,6 +59,8 @@ The authors ensured that the  creators of the entries in the training and test s
 
 
 ## 2. Checking Git Code Base
+We downloaded the python-script from the [github-repo](https://github.com/keras-team/keras-io/blob/master/examples/vision/mnist_convnet.py) and tried to run it on our machines. 
+The summary of how to run it is summarized in the README.md file of our repo. The code from the repo is explained in detail in Chapter 5.
 
 ## 3. Git and Github workflow
 In this chapter we would like to write down our git and github workflow quickly, starting from with an empty folder.
