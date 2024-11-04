@@ -3,21 +3,18 @@ import keras
 from keras import layers
 from data_loader import load_preprocess_data
 from models import build_mnist_cnn
+from train import train_model
 from config import batch_size, epochs
 
 # Load and preprocess data
 (x_train, y_train), (x_test, y_test) = load_preprocess_data()
 
-# define model
+# Define model
 model = build_mnist_cnn()
 
-"""
-## Train the model
-"""
+# Train model
+train_model(model, x_train, y_train)
 
-model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-
-model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
 
 """
 ## Evaluate the trained model
