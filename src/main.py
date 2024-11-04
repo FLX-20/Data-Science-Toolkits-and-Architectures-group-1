@@ -1,27 +1,16 @@
 """
-Title: Simple MNIST convnet
-Author: [fchollet](https://twitter.com/fchollet)
-Date created: 2015/06/19
-Last modified: 2020/04/21
-Description: A simple convnet that achieves ~99% test accuracy on MNIST.
-Accelerator: GPU
-"""
-
-"""
 ## Setup
 """
 
 import numpy as np
 import keras
 from keras import layers
+from config import input_shape, num_classes, batch_size, epochs
 
 """
 ## Prepare the data
 """
 
-# Model / data parameters
-num_classes = 10
-input_shape = (28, 28, 1)
 
 # Load the data and split it between train and test sets
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -63,9 +52,6 @@ model.summary()
 """
 ## Train the model
 """
-
-batch_size = 128
-epochs = 15
 
 model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
