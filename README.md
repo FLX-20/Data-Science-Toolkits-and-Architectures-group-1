@@ -26,11 +26,12 @@ The required packages are stored in the `requirments.txt` file and can be instal
 pip install -r requirements.txt
 ```
 
-## Run Milestone 1
-
-From the root of the cloned repository change to folder `milestone_1` and execute the program code of the CNN.
+## Running the Code
+The code of this project can be found in the `src` folder. It can be executed with the following command after installing all required packages.
 ```shell
-python3 mnist_convnet.py
+python3 src/main.py
 ```
-This folder also includes the tasks and the report of the first milestone,
-which explains the CNN python code, how to set up a Linux system for Python development and a simple gut/GitHub workflow.
+
+## Reports
+The reports of the milestones are in the `report` folder. They include further explanations about the individual milestones. 
+
