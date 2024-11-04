@@ -1,39 +1,15 @@
-"""
-## Setup
-"""
-
 import numpy as np
 import keras
 from keras import layers
 from data_loader import load_preprocess_data
-from config import input_shape, num_classes, batch_size, epochs
-
-"""
-## Prepare the data
-"""
-
+from models import build_mnist_cnn
+from config import batch_size, epochs
 
 # Load and preprocess data
 (x_train, y_train), (x_test, y_test) = load_preprocess_data()
 
-"""
-## Build the model
-"""
-
-model = keras.Sequential(
-    [
-        keras.Input(shape=input_shape),
-        layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-        layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-        layers.Flatten(),
-        layers.Dropout(0.5),
-        layers.Dense(num_classes, activation="softmax"),
-    ]
-)
-
-model.summary()
+# define model
+model = build_mnist_cnn()
 
 """
 ## Train the model
