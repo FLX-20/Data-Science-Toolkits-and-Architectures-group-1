@@ -1,3 +1,6 @@
+# datset path
+dataset_path = "../datasets"
+
 # Model / data parameters
 num_classes = 10
 input_shape = (28, 28, 1)

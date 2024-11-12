@@ -1,20 +1,68 @@
-import numpy as np
-from keras.utils import to_categorical
-from keras.datasets import mnist
-from config import num_classes
+import tarfile
+import pathlib
+import tensorflow as tf
+import matplotlib.pyplot as plt
 
-def load_preprocess_data():
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train = x_train.astype("float32") / 255
-    x_test = x_test.astype("float32") / 255
-    x_train = np.expand_dims(x_train, -1)
-    x_test = np.expand_dims(x_test, -1)
+def extract_dataset(data_path, extract_to):
+ 
+    data_dir = pathlib.Path(data_path)
+    extract_path = pathlib.Path(extract_to)
+    
+    if not data_dir.is_file():
+        raise FileNotFoundError(f"Dataset file not found at {data_dir}")
+    
+    with tarfile.open(data_dir, "r:gz") as tar:
+        tar.extractall(path=extract_path)
+        top_level_folder = pathlib.Path(tar.getnames()[0]).parts[0]
+    
+    return extract_path / top_level_folder
 
-    y_train = to_categorical(y_train, num_classes)
-    y_test = to_categorical(y_test, num_classes)
+def create_datasets(image_dir, batch_size=32, img_height=180, img_width=180, validation_split=0.2, seed=123):
 
-    print("x_train shape:", x_train.shape)
-    print(x_train.shape[0], "train samples")
-    print(x_test.shape[0], "test samples")
+    train_ds = tf.keras.utils.image_dataset_from_directory(
+        image_dir,
+        validation_split=validation_split,
+        subset="training",
+        seed=seed,
+        image_size=(img_height, img_width),
+        batch_size=batch_size
+    )
 
-    return (x_train, y_train), (x_test, y_test)
+    val_ds = tf.keras.utils.image_dataset_from_directory(
+        image_dir,
+        validation_split=validation_split,
+        subset="validation",
+        seed=seed,
+        image_size=(img_height, img_width),
+        batch_size=batch_size
+    )
+
+    class_names = train_ds.class_names
+
+    return train_ds, val_ds, class_names
+
+def load_dataset(
+    data_path, 
+    extract_to, 
+    batch_size=32, 
+    img_height=180, 
+    img_width=180, 
+    validation_split=0.2, 
+    seed=123
+):
+    image_dir = extract_dataset(data_path, extract_to)
+    
+    train_ds, val_ds, class_names = create_datasets(
+        image_dir,
+        batch_size=batch_size,
+        img_height=img_height,
+        img_width=img_width,
+        validation_split=validation_split,
+        seed=seed
+    )
+
+    total_images = len(list(image_dir.glob('**/*.jpg')))
+    print(f"Total images found: {total_images}")
+    print("Class names:", class_names)
+
+    return train_ds, val_ds, class_names
