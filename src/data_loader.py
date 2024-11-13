@@ -2,6 +2,7 @@ import tarfile
 import pathlib
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import numpy as np
 
 def extract_dataset(data_path, extract_to):
  
@@ -17,8 +18,35 @@ def extract_dataset(data_path, extract_to):
     
     return extract_path / top_level_folder
 
-def create_datasets(image_dir, batch_size=32, img_height=180, img_width=180, validation_split=0.2, seed=123):
+def preprocess_images_and_labels(dataset, num_classes):
+    # Normalize images to [0, 1] and one-hot encode labels
+    normalization_layer = tf.keras.layers.Rescaling(1./255)
+    dataset = dataset.map(lambda x, y: (normalization_layer(x), tf.one_hot(y, num_classes)))
+    
+    # Convert the TensorFlow dataset to numpy arrays for compatibility
+    images = []
+    labels = []
+    for img, label in dataset:
+        images.append(img.numpy())
+        labels.append(label.numpy())
+    
+    # Stack the lists into numpy arrays
+    images = np.concatenate(images, axis=0)
+    labels = np.concatenate(labels, axis=0)
+    
+    return images, labels
 
+def load_dataset(
+    data_path, 
+    extract_to, 
+    batch_size=32, 
+    img_height=180, 
+    img_width=180, 
+    validation_split=0.2, 
+    seed=123
+):
+    image_dir = extract_dataset(data_path, extract_to)
+    
     train_ds = tf.keras.utils.image_dataset_from_directory(
         image_dir,
         validation_split=validation_split,
@@ -37,32 +65,21 @@ def create_datasets(image_dir, batch_size=32, img_height=180, img_width=180, val
         batch_size=batch_size
     )
 
+    sample_image, _ = next(iter(train_ds))
+    num_channels = sample_image.shape[-1]
+    input_shape = (img_height, img_width, num_channels)
+
+    # Get class names and calculate number of classes
     class_names = train_ds.class_names
+    num_classes = len(class_names)
 
-    return train_ds, val_ds, class_names
-
-def load_dataset(
-    data_path, 
-    extract_to, 
-    batch_size=32, 
-    img_height=180, 
-    img_width=180, 
-    validation_split=0.2, 
-    seed=123
-):
-    image_dir = extract_dataset(data_path, extract_to)
+    # Preprocess images and labels
+    x_train, y_train = preprocess_images_and_labels(train_ds, num_classes)
+    x_test, y_test = preprocess_images_and_labels(val_ds, num_classes)
     
-    train_ds, val_ds, class_names = create_datasets(
-        image_dir,
-        batch_size=batch_size,
-        img_height=img_height,
-        img_width=img_width,
-        validation_split=validation_split,
-        seed=seed
-    )
+    print("x_train shape:", x_train.shape)
+    print(x_train.shape[0], "train samples")
+    print(x_test.shape[0], "test samples")
 
-    total_images = len(list(image_dir.glob('**/*.jpg')))
-    print(f"Total images found: {total_images}")
-    print("Class names:", class_names)
+    return (x_train, y_train), (x_test, y_test), input_shape, num_classes
 
-    return train_ds, val_ds, class_names
