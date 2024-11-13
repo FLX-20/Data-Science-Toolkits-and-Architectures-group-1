@@ -1,5 +1,5 @@
-from config import save_path
+import config
 
 def save_model(model):
-    model.save(save_path)
-    print(f"Model saved in SavedModel format at {save_path}")
+    model.save(config.save_path)
+    print(f"Model saved in SavedModel format at {config.save_path}")
