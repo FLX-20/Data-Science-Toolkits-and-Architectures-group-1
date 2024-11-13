@@ -1,3 +1,6 @@
+# save path of the trained model
+save_path = "models/mnist_model.keras"
+
 # datset path
 dataset_path = "../datasets"
 
