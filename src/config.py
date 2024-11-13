@@ -1,3 +1,6 @@
+# paths
+load_model_path = None
+
 # Model / data parameters
 num_classes = 10
 input_shape = (28, 28, 1)
