@@ -1,5 +1,5 @@
-# paths
-load_model_path = None
+# datset path
+dataset_path = "../datasets"
 
 # Model / data parameters
 num_classes = 10
