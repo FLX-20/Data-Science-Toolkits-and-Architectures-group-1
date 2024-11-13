@@ -1,8 +1,8 @@
 import tarfile
 import pathlib
 import tensorflow as tf
-import matplotlib.pyplot as plt
 import numpy as np
+import config
 
 def extract_dataset(data_path, extract_to):
  
@@ -18,19 +18,17 @@ def extract_dataset(data_path, extract_to):
     
     return extract_path / top_level_folder
 
-def preprocess_images_and_labels(dataset, num_classes):
-    # Normalize images to [0, 1] and one-hot encode labels
+def preprocess_images_and_labels(dataset):
+
     normalization_layer = tf.keras.layers.Rescaling(1./255)
-    dataset = dataset.map(lambda x, y: (normalization_layer(x), tf.one_hot(y, num_classes)))
+    dataset = dataset.map(lambda x, y: (normalization_layer(x), tf.one_hot(y, config.num_classes)))
     
-    # Convert the TensorFlow dataset to numpy arrays for compatibility
     images = []
     labels = []
     for img, label in dataset:
         images.append(img.numpy())
         labels.append(label.numpy())
     
-    # Stack the lists into numpy arrays
     images = np.concatenate(images, axis=0)
     labels = np.concatenate(labels, axis=0)
     
@@ -43,7 +41,7 @@ def load_dataset(
     img_height=180, 
     img_width=180, 
     validation_split=0.2, 
-    seed=123
+    seed=10
 ):
     image_dir = extract_dataset(data_path, extract_to)
     
@@ -67,19 +65,19 @@ def load_dataset(
 
     sample_image, _ = next(iter(train_ds))
     num_channels = sample_image.shape[-1]
-    input_shape = (img_height, img_width, num_channels)
+    config.input_shape = (img_height, img_width, num_channels)
 
     # Get class names and calculate number of classes
     class_names = train_ds.class_names
-    num_classes = len(class_names)
+    config.num_classes = len(class_names)
 
     # Preprocess images and labels
-    x_train, y_train = preprocess_images_and_labels(train_ds, num_classes)
-    x_test, y_test = preprocess_images_and_labels(val_ds, num_classes)
+    x_train, y_train = preprocess_images_and_labels(train_ds)
+    x_test, y_test = preprocess_images_and_labels(val_ds)
     
     print("x_train shape:", x_train.shape)
     print(x_train.shape[0], "train samples")
     print(x_test.shape[0], "test samples")
 
-    return (x_train, y_train), (x_test, y_test), input_shape, num_classes
+    return (x_train, y_train), (x_test, y_test)
 

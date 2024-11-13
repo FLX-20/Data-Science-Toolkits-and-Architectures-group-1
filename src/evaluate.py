@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import config
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from tensorflow.keras.preprocessing import image as keras_image
 import numpy as np
@@ -16,7 +17,7 @@ def plot_confusion_matrix(classifier, test_data, test_labels):
     
     cm = confusion_matrix(test_labels, predictions)
     fig, ax = plt.subplots(figsize=(12, 12))
-    ConfusionMatrixDisplay(cm, display_labels=range(10)).plot(cmap="Blues", ax=ax)
+    ConfusionMatrixDisplay(cm, display_labels=range(config.num_classes)).plot(cmap="Blues", ax=ax) 
     plt.title("Normalized Confusion Matrix")
     plt.savefig("confusion_matrix.png")
     print("Confusion matrix saved as confusion_matrix.png")
