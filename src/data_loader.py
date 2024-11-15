@@ -1,34 +1,22 @@
-import tarfile
 import pathlib
 import tensorflow as tf
 import numpy as np
 import config
+import matplotlib.pyplot as plt
 
-def extract_dataset(data_path, extract_to):
- 
-    data_dir = pathlib.Path(data_path)
-    extract_path = pathlib.Path(extract_to)
-    
-    if not data_dir.is_file():
-        raise FileNotFoundError(f"Dataset file not found at {data_dir}")
-    
-    with tarfile.open(data_dir, "r:gz") as tar:
-        tar.extractall(path=extract_path)
-        top_level_folder = pathlib.Path(tar.getnames()[0]).parts[0]
-    
-    return extract_path / top_level_folder
 
 def preprocess_images_and_labels(dataset):
 
     normalization_layer = tf.keras.layers.Rescaling(1./255)
+    print(f"1\n{normalization_layer}")
     dataset = dataset.map(lambda x, y: (normalization_layer(x), tf.one_hot(y, config.num_classes)))
-    
+    print(f"2\n{dataset }")
     images = []
     labels = []
     for img, label in dataset:
         images.append(img.numpy())
         labels.append(label.numpy())
-    
+    print(f"3\n")
     images = np.concatenate(images, axis=0)
     labels = np.concatenate(labels, axis=0)
     
@@ -36,17 +24,19 @@ def preprocess_images_and_labels(dataset):
 
 def load_dataset(
     data_path, 
-    extract_to, 
     batch_size=32, 
     img_height=180, 
     img_width=180, 
     validation_split=0.2, 
     seed=10
 ):
-    image_dir = extract_dataset(data_path, extract_to)
+    data_dir = pathlib.Path(data_path)
+    
+    if not (data_dir.exists() and data_dir.is_dir()):
+        return f"'{data_path}' is not a valid directory."
     
     train_ds = tf.keras.utils.image_dataset_from_directory(
-        image_dir,
+        data_path,
         validation_split=validation_split,
         subset="training",
         seed=seed,
@@ -55,7 +45,7 @@ def load_dataset(
     )
 
     val_ds = tf.keras.utils.image_dataset_from_directory(
-        image_dir,
+        data_path,
         validation_split=validation_split,
         subset="validation",
         seed=seed,
@@ -67,9 +57,15 @@ def load_dataset(
     num_channels = sample_image.shape[-1]
     config.input_shape = (img_height, img_width, num_channels)
 
+    print(f"num channels:{num_channels}")
+    print(f"image height: {img_height}")
+
     # Get class names and calculate number of classes
     class_names = train_ds.class_names
     config.num_classes = len(class_names)
+
+    show_loaded_images(train_ds , class_names,"examples_train_images")
+    show_loaded_images(val_ds, class_names,"examples_test_images")
 
     # Preprocess images and labels
     x_train, y_train = preprocess_images_and_labels(train_ds)
@@ -81,3 +77,13 @@ def load_dataset(
 
     return (x_train, y_train), (x_test, y_test)
 
+def show_loaded_images(dataset, class_names, num_images=9, filename="images.png"):
+    plt.figure(figsize=(10, 10))
+    for images, labels in dataset.take(1):
+        for i in range(min(num_images, len(images))):
+            ax = plt.subplot(3, 3, i + 1)
+            plt.imshow(images[i].numpy().astype("uint8"))
+            plt.title(class_names[labels[i]])
+            plt.axis("off")
+    plt.savefig(filename)
+    print(f"Overview of images and their classes are stored in {filename}")
