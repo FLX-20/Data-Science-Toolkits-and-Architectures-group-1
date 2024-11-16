@@ -1,5 +1,4 @@
 from keras import layers, Sequential, Input
-import config
 
 
 def build_cnn(input_shape, num_classes):
