@@ -1,6 +1,3 @@
-import config
-
-
-def save_model(model):
-    model.save(config.save_path)
-    print(f"Model saved in SavedModel format at {config.save_path}")
+def save_model(model, model_file_path):
+    model.save(model_file_path)
+    print(f"Model saved in SavedModel format at {model_file_path}")

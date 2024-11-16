@@ -1,23 +1,20 @@
 import pathlib
 import tensorflow as tf
 import numpy as np
-import config
 import matplotlib.pyplot as plt
 
 
-def preprocess_images_and_labels(dataset):
+def preprocess_images_and_labels(dataset, num_classes):
 
     normalization_layer = tf.keras.layers.Rescaling(1./255)
-    print(f"1\n{normalization_layer}")
     dataset = dataset.map(lambda x, y: (
-        normalization_layer(x), tf.one_hot(y, config.num_classes)))
-    print(f"2\n{dataset}")
-    images = []
-    labels = []
+        normalization_layer(x), tf.one_hot(y, num_classes)))
+
+    images, labels = [], []
     for img, label in dataset:
         images.append(img.numpy())
         labels.append(label.numpy())
-    print(f"3\n")
+
     images = np.concatenate(images, axis=0)
     labels = np.concatenate(labels, axis=0)
 
@@ -57,30 +54,28 @@ def load_dataset(
 
     sample_image, _ = next(iter(train_ds))
     num_channels = sample_image.shape[-1]
-    config.input_shape = (img_height, img_width, num_channels)
+    input_shape = (img_height, img_width, num_channels)
 
     print(f"num channels:{num_channels}")
     print(f"image height: {img_height}")
 
-    # Get class names and calculate number of classes
     class_names = train_ds.class_names
-    config.num_classes = len(class_names)
+    num_classes = len(class_names)
 
-    show_loaded_images(train_ds, class_names, "examples_train_images")
-    show_loaded_images(val_ds, class_names, "examples_test_images")
+    show_loaded_images(train_ds, class_names, 9, "examples_train_images")
+    show_loaded_images(val_ds, class_names, 9, "examples_test_images")
 
-    # Preprocess images and labels
-    x_train, y_train = preprocess_images_and_labels(train_ds)
-    x_test, y_test = preprocess_images_and_labels(val_ds)
+    x_train, y_train = preprocess_images_and_labels(train_ds, num_classes)
+    x_test, y_test = preprocess_images_and_labels(val_ds, num_classes)
 
     print("x_train shape:", x_train.shape)
     print(x_train.shape[0], "train samples")
     print(x_test.shape[0], "test samples")
 
-    return (x_train, y_train), (x_test, y_test)
+    return (x_train, y_train), (x_test, y_test), input_shape, num_classes
 
 
-def show_loaded_images(dataset, class_names, num_images=9, filename="images.png"):
+def show_loaded_images(dataset, class_names, num_images=0, filename="images.png"):
     plt.figure(figsize=(10, 10))
     for images, labels in dataset.take(1):
         for i in range(min(num_images, len(images))):
