@@ -36,5 +36,16 @@ After the creation of this file, it can be used by other people to quickly insta
 pip install -r requirements.txt
 ```
 
+### 5.2 advanced ependency Management with pip-tools
+A more sophisticated way to manage dependencies is `pip-tools`, which allows to separate between direct dependencies and transitive dependencies.
+- direct dependencies: packages directly required by the project
+- transitive dependencies: packages required by the projects' packages. 
+After in the installation of `pip-tools` and the creation of a `venv`, like in the previous chapter a `requirements.in` file can be initalized. 
+This file only lists the direct dependencies of our project.
+In the next step `pip-tools` use this `requirements. in` to generate the `requirements.txt` with the following command. 
+```shell
+pip-compile requirements.in
+```
+The final `requirements.txt` can then be used like in the previous chapter.
 
 ## 6 Containerizing the Application with Docker
