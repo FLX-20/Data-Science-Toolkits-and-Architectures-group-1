@@ -2,8 +2,7 @@
 
 ## 1 Establishing a Clean Git Repository
 
-# 1.1 New Git structure and related issues
-# 1.1 New Git structure and related issues
+### 1.1 New Git structure and related issues
 In the first step of this second milestone, we thought about a better structure for our git repo.
 The result was that the report was divided into large parts. The `main-report-branch` is for finished report chapters 
 and the `main-dev-branch` is for finished code features.
@@ -25,6 +24,10 @@ However after successfully fixing the merge conflicts, we were not able to push 
 due to the rule that no merge is allowed without a pull request. 
 We solved this problem by shortly switching of this rule. But we are aware that this might not be the most professional solution.
 So our question would how to deal with such an issue the next time? How should we deal with an merge conflict in an pull-request, which we should resolve localy but can not push to the github repo in the end, because of our strict merging rules?
+
+### 1.2 Gitignore File
+A `.gitignore` file was already created in the last milestone together with the creation of the git repository.
+At the beginning we used the default git `.gitignore` provided by Github. This file was extended to also excluded the datasets and models folder, because we don't want to upload neither the large training dataset to GitHub nor our trained models, which were created during the development to test the code. 
 
 ## 2 Technical Concepts and Tool Preferences
 
