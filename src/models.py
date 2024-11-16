@@ -1,6 +1,7 @@
 from keras import layers, Sequential, Input
 import config
 
+
 def build_mnist_cnn():
     model = Sequential([
         Input(shape=config.input_shape),
