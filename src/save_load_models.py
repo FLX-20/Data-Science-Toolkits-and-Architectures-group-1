@@ -9,3 +9,8 @@ def load_model_from_keras(load_model_path):
     except Exception as e:
         print(f"Error loading model: {e}")
         return None
+
+
+def save_model(model, model_file_path):
+    model.save(model_file_path)
+    print(f"Model saved in SavedModel format at {model_file_path}")

@@ -5,6 +5,7 @@ __pycache__/
 
 # directories
 datasets/
+models/
 
 # C extensions
 *.so

@@ -1,7 +1,7 @@
 from keras import layers, Sequential, Input
-from config import input_shape, num_classes
 
-def build_mnist_cnn(input_shape, num_classes):
+
+def build_cnn(input_shape, num_classes):
     model = Sequential([
         Input(shape=input_shape),
         layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
