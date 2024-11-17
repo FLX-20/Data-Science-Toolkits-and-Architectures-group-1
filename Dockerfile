@@ -28,12 +28,13 @@ RUN pip install --upgrade tensorflow
 COPY . /app
 
 # Install other additional Python dependencies from the requirements file
-RUN pip3 install --no-cache-dir -r requirements_new.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Create a directory for saving models
 RUN mkdir -p /app/saved_models
 
 # Command to run the script (replace "main.py" with your actual Python script)
 CMD ["python3", "main.py"]
+
 
 
