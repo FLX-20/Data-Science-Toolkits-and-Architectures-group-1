@@ -56,8 +56,10 @@ def load_dataset(
     class_names = train_ds.class_names
     num_classes = len(class_names)
 
-    show_loaded_images(train_ds, class_names, 9, "examples_train_images")
-    show_loaded_images(val_ds, class_names, 9, "examples_test_images")
+    show_loaded_images(train_ds, class_names, 9,
+                       "images/examples_train_images")
+    show_loaded_images(val_ds, class_names, 9,
+                       "images/examples_test_images")
 
     x_train, y_train = preprocess_images_and_labels(train_ds, num_classes)
     x_test, y_test = preprocess_images_and_labels(val_ds, num_classes)
