@@ -40,6 +40,22 @@ These datasets can be installed by executing `download_datasets.sh`.
 In the beginning, downloading the datasets was included in the Python code. However, if you run the code multiple times it is redundant and causes unnecessary computation to download the datasets every time again.
 This issue resulted in the decision to exclude this step into a shell script. 
 
+## 3.2 Training the Neural Network
+The Convolutional Neural Network can be trained by executing the following command after building the docker image.
+```
+docker run --rm \
+ -v ./images:/app/images \
+ -v ./datasets:/app/datasets \
+ -v ./models:/app/models simple_cnn \
+ --mode train \
+ --dataset_path /app/datasets/Animals \
+ --model_file_path /app/models/cnn_model.keras \
+ --batch_size 64 \
+ --epochs 20
+```
+This version of the code uses a parser to modify some of the inputs such as the `dataset_path`, `model_file_path`, `batch_size` and `epochs` via the CLI, instead of storing them in an additional config file. This makes it possible to run the code quickly with different datasets or batch sizes.    
+The actual structure of the CNN and the related training process was not changed in this milestone, because we assume that this is part of the next milestone. 
+Thus, the final model accuracy and the confusion matrix for both datasets are not optimal and much space for further improvement. 
 
 ## 4 Code Modularization and Structure Enhancement
 
