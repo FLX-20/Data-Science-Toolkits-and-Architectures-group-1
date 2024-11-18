@@ -14,6 +14,35 @@ The same idea was applied to the `main-report-branch` based on chapters.
 At the end of the project, the final results of the `main-dev-branch` and `main-report-branch` were merged into the `main branch.`
 Furthermore, we added a rule that a pull request and a review by a second person from the team are also necessary for the `main-dev-branch` and `main-report-branch`.
 
+This idea worked fine until we encountered our first merge conflict. Github informed us that we needed to resolve this conflict locally on our machine by using the following commands.
+
+```shell
+git pull origin main-dev-branch # step 1
+git checkout save-model #step 2
+git merge main-dev-branch #step 4
+# step 4) Fix the conflict
+git push -u origin save-model # step 5
+```
+However after successfully fixing the merge conflicts, we were not able to push the results to the `main-dev-branch` of our GitHub repo anymore, 
+due to the rule that no merge is allowed without a pull request. 
+We solved this problem by switching this rule for all branches except the `main` branch. But we are aware that this might not be the most professional solution.
+So your question for the next time would be:   
+**How can we create a rule for the branches `main-report-branch` and `main-report-branch` that requires a pull request for all merges into these branches, but still can resolve merge conflicts?**
+
+### 1.2 Gitignore File
+A `.gitignore` file was already created in the last milestone together with the creation of the git repository.
+In the beginning, we used the default git `.gitignore`-file provided by GitHub. This file was extended to also exclude the `datasets`, `models` and `images` libraries because we want to upload neither the large training dataset to GitHub nor our trained models, which were created during the development to test the code.   
+However, we would like to make the datasets, which we used for this code quickly available for other users. This is the way we created the `download_datasets.sh` script, which automatically creates the required directories and downloads the two datasets.
+
+### 1.3 Sharing the .gitignorefile
+The .gitignore file was continuously updated when a new feature was merged into the `main-dev-branch`. However, this did not happen frequently because the default GitHub version was already quite complete for this milestone. We only added the following directories to avoid uploading images and datasets to the repo.
+```
+datasets/
+models/
+images/
+```
+An extra .gitignore strategy for these three extra lines would have caused more work than benefit. But we are trying to continuously improve our git branching strategy over all milestones and adapt it if there is a necessity and the tasks become too complex to solve with our simple strategy.
+
 ### 2.1 Hash-Functions
 
 A hash function is a mathematical process that transforms an input, typically a message or piece of data, into a fixed-size string of characters, often represented as a series of bytes. This output, called a hash value or digest, acts as a unique 'fingerprint' of the original input. A key feature of a good hash function is that even a small change in the input will produce a completely different hash value. 
@@ -215,9 +244,6 @@ Formatting code according to Pep8 can be quite hard and tedious. This is the way
   }
 ```
 
-
-
-
 ## 5 Dependency Management with pip and Virtual Environments
 
 ### 5.1 Traditional Virtual Environment and Dependency Management
@@ -263,8 +289,7 @@ pip-compile requirements.in
 The final `requirements.txt` can then be used like in the previous chapter.
 
 ## 6 Containerizing the Application with Docker
-Docker is an open-source platform for building, testing and deploying applications quickly. It packages software into standardized units, which are called containers. These containers can run consistently across different environments, because they bundle everything that an application requires, such as code, libraries or system tools.
-This ensures that everything runs in the same way no matter where it is deployed.  
+Docker is an open-source platform for building, testing and deploying applications quickly. It packages software into standardized units, which are called containers. 
 
 ### 6.1 Installing Docker on our machines
 The installation of Docker is more complicated than installing a normal package, for instance over the CLI with apt on Ubuntu.
@@ -281,7 +306,7 @@ In the end, three volumes are mounted into the container: datasets, images and m
 These volumes allow the container and the Python code, which runs inside this container to make changes to the filesystem of the local machine.  
 It also would have been possible to combine all these directories in one single directory/volume. But in this scenario, the codebase would be nested from our point of view. 
 
-While experimenting with dockerfiles and images. We didn't realize how much space the build images occupy. The result was that after a while almost the entire hard drive was full. This highlights how important it is to delete unused images regularly.
+While experimenting with dockerfiles and images. We didn't realize how much space the build images occupy. The result was that after a while almost the entire hard drive was full with iamges. This highlights how important it is to delete unused images regularly.
 In the worst-case scenario where no disk space was left the following command was executed, which forces removing all containers, volumes, images, and networks. 
 ```
 docker system prune -a --volumes
