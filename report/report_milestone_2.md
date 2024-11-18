@@ -2,9 +2,17 @@
 
 ## 1 Establishing a Clean Git Repository
 
+### 1.1 New Git structure and related issues
+In the first step of this second milestone, we thought about a better structure for our git repo.
+The result was that the report was divided into two large parts. 
 
+- `main-report-branch` for finished report chapters 
+- `main-dev-branch` for finished code features
 
-## 2 Technical Concepts and Tool Preferences
+Thus, for every new feature in the code, a new branch was created and merged after its completion into the `main-dev-branch`.
+The same idea was applied to the `main-report-branch` based on chapters.
+At the end of the project, the final results of the `main-dev-branch` and `main-report-branch` were merged into the `main branch.`
+Furthermore, we added a rule that a pull request and a review by a second person from the team are also necessary for the `main-dev-branch` and `main-report-branch`.
 
 ### 2.1 Hash-Functions
 
