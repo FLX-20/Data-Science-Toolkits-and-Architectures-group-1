@@ -38,4 +38,6 @@ def predict_image_label(model, image_path):
     predictions = model.predict(img_array)
     predicted_label = np.argmax(predictions, axis=1)[0]
 
+    print(f"Predicted label by the CNN: {predicted_label}")
+
     return predicted_label

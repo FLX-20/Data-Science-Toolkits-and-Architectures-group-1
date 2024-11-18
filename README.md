@@ -35,7 +35,7 @@ The model can be executed for training in a docker container by using this code.
 docker run --rm \
     -v ./images:/app/images \
     -v ./datasets:/app/datasets \
-    -v ./models:/app/models cnn_image \
+    -v ./models:/app/models simple_cnn \
     --mode train \
     --dataset_path /app/datasets/Animals \
     --model_file_path /app/models/cnn_model.keras \
@@ -49,10 +49,22 @@ After training a model, it can be evaluated by executing the following command. 
 docker run --rm \
     -v ./images:/app/images \
     -v ./datasets:/app/datasets \
-    -v ./models:/app/models cnn_image \
+    -v ./models:/app/models simple_cnn \
     --mode test \
     --dataset_path /app/datasets/Animals \
     --model_file_path /app/models/cnn_model.keras \
+```
+
+## Classify single Image with trained CNN
+Moreover there is an option to classify single images with the trained CNN by providing the path.
+Place the image in the dataset directory, so that the Docker container can access it and define the relative path of the image in the CLI, when executing the container. 
+```shell
+docker run --rm \
+    -v ./images:/app/images \
+    -v ./datasets:/app/datasets \
+    -v ./models:/app/models simple_cnn \
+    --mode classify \
+    --single_image_path datasets/Animals/dogs/your_image_name.jpg
 ```
 
 ## Reports
