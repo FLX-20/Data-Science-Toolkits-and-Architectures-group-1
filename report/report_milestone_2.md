@@ -57,6 +57,12 @@ This version of the code uses a parser to modify some of the inputs such as the 
 The actual structure of the CNN and the related training process was not changed in this milestone, because we assume that this is part of the next milestone. 
 Thus, the final model accuracy and the confusion matrix for both datasets are not optimal and much space for further improvement. 
 
+## 3.3 Saving the Model
+After the model training the model is saved as a `.h5` or `.keras` file in the model's directory, which is created by the download_datasets.sh script. The decision to provide both file types came from the note in the documentation that the `.h5` filetype is deprecated and the newer version `.keras` is recommended.  
+If the file ending provided via the parser is neither `.h5` nor `.keras` an error message is printed out.  
+It is also important to mention that we are aware that not all edge cases for inputs via the parser are modelled out. This could be improved in the future by better exception handling to improve the stability and robustness of the code. 
+As long as this is not the case the code should be exactly executed how it is described in the `README.md`.
+
 ## 4 Code Modularization and Structure Enhancement
 
 
