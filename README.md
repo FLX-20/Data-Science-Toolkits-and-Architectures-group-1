@@ -13,10 +13,11 @@ A local copy of the repository can be created with the following command. Make s
 git clone https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1.git
 ```
 
-## Pull the Docker Image from Dockerhub
-Pull the image from the docker hub repo to use the CNN.
+## Containerize the Application
+Build the Docker image with the following command to containerize the program code.
+Then you can run the commands of the next parts independent of your OS. 
 ```shell
-docker pull felix20/data-science-toolkits-and-architectures-group-1:cnn_image
+docker_build -t simple_cnn
 ```
 
 ## Download the datasets
