@@ -21,31 +21,30 @@
 
 
 ## 6 Containerizing the Application with Docker
-At this exercise Dockerize our code
+Docker is an open-source platform for building, testing and deploying applications quickly. It packages software into standardized units, which are called containers. These containers can run consistently across different environments, because they bundle everything that an application requires, such as code, libraries or system tools.
+This ensures that everything runs in the same way no matter where it is deployed.  
 
 ### 6.1 Installing Docker on our machines
-We installed [Docker] https://docs.docker.com/engine/install/ for Windows and IOS on the original Docker website.
+The installation of Docker is more complicated than installing a normal package, for instance over the CLI with apt on Ubuntu.
+it is always recommended to follow the newest [Docker Documentation](https://docs.docker.com/desktop/setup/install/linux/ubuntu/) on the offcial Docker webside. 
 
 ### 6.2 Creating a Docker file with the necessary dependencies
-We have used the code `docker build -t tensorflow-cpu-app .` in a new terminal to build the Docker Image. Only I got an error that there is no dockerfile in my directory. Because I forgot to make a dockerfile. Therefore, I made a new file, calling it Dockerfile. In this Dockerfile I added the following lines
+The task was to create a Dockerfile to build an image. Afterwards, this image can be used to run the code on any machine independent of the operating system.  
+We created the Dockerfile manually and didn't use docker-compose, because the Dockerfile of such a small application is short and simple.  
+Furthermore, it was a good practice to build the dockefile by hand from scratch. 
+If the project becomes more complex we will probably make use of docker compose. 
+
+During the writing of the docker file, the biggest issue was the file itself, but the mounting of the volumes. It took a while to find out how to specify the right paths in the local file system and in the container. 
+In the end, three volumes are mounted into the container: datasets, images and models.
+These volumes allow the container and the Python code, which runs inside this container to make changes to the filesystem of the local machine.  
+It also would have been possible to combine all these directories in one single directory/volume. But in this scenario, the codebase would be nested from our point of view. 
+
+While experimenting with dockerfiles and images. We didn't realize how much space the build images occupy. The result was that after a while almost the entire hard drive was full. This highlights how important it is to delete unused images regularly.
+In the worst-case scenario where no disk space was left the following command was executed, which forces removing all containers, volumes, images, and networks. 
 ```
-# Use an official TensorFlow Docker image (CPU version)
-FROM tensorflow/tensorflow:latest
-
-# Set the working directory inside the container
-WORKDIR /app
-
-# Copy the local project files to the container
-COPY . /app
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Create a directory for saving models
-RUN mkdir -p /app/saved_models
-
-# Command to run the script (replace "main.py" with your actual Python script)
-CMD ["python", "src/main.py"]
+docker system prune -a --volumes
 ```
-Then I executed this command `docker build -t tensorflow-cpu-app .` in my terminal again. It worked but it took 7 minutes to finish. 
-
+Normally you would use `docker image prune` to delete all `<none>` images and `docker image prune -a` to delete all unused images.
+It is also important to note that all containers related to an image need to be stopped to remove it.  
+Moreover, we recognize that our final image is quite large with over two 2GB. We think the main reason for this is the installation of the tensorflow library from which we only used a fraction.
+A question for the next lecture would be how to decrease the size of this Docker Image.
