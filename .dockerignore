@@ -6,5 +6,8 @@ __pycache__
 *.gitignore
 *.dockerignore
 *.log
-
-
+models/
+reports/
+datasets/
+images/
+scripts/

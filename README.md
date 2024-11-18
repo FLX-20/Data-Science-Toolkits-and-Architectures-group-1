@@ -12,12 +12,13 @@ A local copy of the repository can be created with the following command. Make s
 ```shell
 git clone https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1.git
 ```
+After cloning the repo. It is important to move into the root directory of the repo and execute the following commands from this root directory.
 
 ## Containerize the Application
 Build the Docker image with the following command to containerize the program code.
 Then you can run the commands of the next parts independent of your OS. 
 ```shell
-docker_build -t simple_cnn
+docker build -t simple_cnn .
 ```
 
 ## Download the datasets
@@ -53,11 +54,11 @@ docker run --rm \
     -v ./models:/app/models simple_cnn \
     --mode test \
     --dataset_path /app/datasets/Animals \
-    --model_file_path /app/models/cnn_model.keras \
+    --model_file_path /app/models/cnn_model.keras
 ```
 
 ## Classify single Image with trained CNN
-Moreover there is an option to classify single images with the trained CNN by providing the path.
+Moreover, there is an option to classify single images with the trained CNN by providing the path.
 Place the image in the dataset directory, so that the Docker container can access it and define the relative path of the image in the CLI, when executing the container. 
 ```shell
 docker run --rm \
@@ -65,7 +66,8 @@ docker run --rm \
     -v ./datasets:/app/datasets \
     -v ./models:/app/models simple_cnn \
     --mode classify \
-    --single_image_path datasets/Animals/dogs/your_image_name.jpg
+    --model_file_path /app/models/cnn_model.keras \
+    --single_image_path ./datasets/your_image_name.jpg
 ```
 
 ## Reports
