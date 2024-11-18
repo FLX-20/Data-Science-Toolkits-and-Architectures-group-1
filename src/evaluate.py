@@ -20,7 +20,7 @@ def plot_confusion_matrix(classifier, test_data, test_labels):
     _, ax = plt.subplots(figsize=(12, 12))
     ConfusionMatrixDisplay(cm).plot(cmap="Blues", ax=ax)
     plt.title("Normalized Confusion Matrix")
-    plt.savefig("confusion_matrix.png")
+    plt.savefig("images/confusion_matrix.png")
     print("Confusion matrix saved as confusion_matrix.png")
 
 
@@ -37,5 +37,7 @@ def predict_image_label(model, image_path):
 
     predictions = model.predict(img_array)
     predicted_label = np.argmax(predictions, axis=1)[0]
+
+    print(f"Predicted label by the CNN: {predicted_label}")
 
     return predicted_label
