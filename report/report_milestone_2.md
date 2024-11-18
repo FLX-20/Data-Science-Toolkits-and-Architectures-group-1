@@ -63,6 +63,21 @@ If the file ending provided via the parser is neither `.h5` nor `.keras` an erro
 It is also important to mention that we are aware that not all edge cases for inputs via the parser are modelled out. This could be improved in the future by better exception handling to improve the stability and robustness of the code. 
 As long as this is not the case the code should be exactly executed how it is described in the `README.md`.
 
+## Loading files and Model Evaluation
+The trained stored model can be loaded afterwards by using this command in the CLI.
+```
+docker run --rm \
+ -v ./images:/app/images \
+ -v ./datasets:/app/datasets \
+ -v ./models:/app/models simple_cnn \
+ --mode test \
+ --dataset_path /app/datasets/Animals \
+ --model_file_path /app/models/cnn_model.keras \
+```
+The important thing here is the change of the `--mode` form `train` to `test`. Without training a model and saving this function will result in an error. 
+If the command is executed the model and the related dataset are loaded. But this time we are only using the test data for model evaluation. The model evaluation only consists of the loss and accuracy, like in the previous milestone.  
+The a new added function in the evaluation part is the confusion matrix, which is stored in the `image` directory, like 9 example images from the test and train part of the dataset. 
+
 ## 4 Code Modularization and Structure Enhancement
 
 
