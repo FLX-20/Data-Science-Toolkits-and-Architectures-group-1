@@ -43,6 +43,8 @@ images/
 ```
 An extra .gitignore strategy for these three extra lines would have caused more work than benefit. But we are trying to continuously improve our git branching strategy over all milestones and adapt it if there is a necessity and the tasks become too complex to solve with our simple strategy.
 
+## 2. General Questions 
+
 ### 2.1 Hash-Functions
 
 A hash function is a mathematical process that transforms an input, typically a message or piece of data, into a fixed-size string of characters, often represented as a series of bytes. This output, called a hash value or digest, acts as a unique 'fingerprint' of the original input. A key feature of a good hash function is that even a small change in the input will produce a completely different hash value. 
