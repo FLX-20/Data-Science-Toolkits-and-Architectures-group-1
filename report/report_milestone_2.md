@@ -18,7 +18,7 @@
 
 ## 5 Dependency Management with pip and Virtual Environments
 
-### 5.1 traditional Virtual Environment and Dependency Management
+### 5.1 Traditional Virtual Environment and Dependency Management
 In Python, virtual environments are necessary to separate project-required dependencies from system-wide packages. This avoids conflicts between packages. 
 A virtual environment can be created and activated with the following commands.
 ```shell
@@ -36,13 +36,25 @@ After the creation of this file, it can be used by other people to quickly insta
 pip install -r requirements.txt
 ```
 
-### 5.2 advanced ependency Management with pip-tools
+### 5.2 Advanced dependency Management with pip-tools
 A more sophisticated way to manage dependencies is `pip-tools`, which allows to separate between direct dependencies and transitive dependencies.
 - direct dependencies: packages directly required by the project
-- transitive dependencies: packages required by the projects' packages. 
-After in the installation of `pip-tools` and the creation of a `venv`, like in the previous chapter a `requirements.in` file can be initalized. 
+- transitive dependencies: packages required by the projects' packages.
+ 
+The package `pip-tools` can be installed, like any other package with pip in the following way.
+```shell
+pip install pip-tools
+```
+After the installation of `pip-tools` and the creation of a `venv`, like in the previous chapter, a `requirements.in` file can be created.
+```
+tensorflow
+numpy
+matplotlib
+scikit-learn
+keras
+```
 This file only lists the direct dependencies of our project.
-In the next step `pip-tools` use this `requirements. in` to generate the `requirements.txt` with the following command. 
+In the next step `pip-tools` use this `requirements.in` to generate the `requirements.txt` with the following command. 
 ```shell
 pip-compile requirements.in
 ```
