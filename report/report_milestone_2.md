@@ -43,6 +43,8 @@ images/
 ```
 An extra .gitignore strategy for these three extra lines would have caused more work than benefit. But we are trying to continuously improve our git branching strategy over all milestones and adapt it if there is a necessity and the tasks become too complex to solve with our simple strategy.
 
+## 2. General Questions 
+
 ### 2.1 Hash-Functions
 
 A hash function is a mathematical process that transforms an input, typically a message or piece of data, into a fixed-size string of characters, often represented as a series of bytes. This output, called a hash value or digest, acts as a unique 'fingerprint' of the original input. A key feature of a good hash function is that even a small change in the input will produce a completely different hash value. 
@@ -109,7 +111,7 @@ In conclusion, assess a Python package by looking at its popularity, maintainabi
 
 
 ## 3 Building Core Functionality for Model Training and Prediction
-## 3.1 Load Datasets
+### 3.1 Load Datasets
 The starting point of loading new datasets for training the model was the [tensorflow documentation for dataloading](https://www.tensorflow.org/tutorials/load_data/images).
 The objective was to implement a function that can read datasets from the local filesystem and return the same values as the data loading function for the already included datasets in TensorFlow, such as mnist_fashion or cifrar10. These datasets can be easily loaded with the following functions.
 ```python
@@ -140,7 +142,7 @@ These datasets can be installed by executing `download_datasets.sh`.
 In the beginning, downloading the datasets was included in the Python code. However, if you run the code multiple times it is redundant and causes unnecessary computation to download the datasets every time again.
 This issue resulted in the decision to exclude this step into a shell script. 
 
-## 3.2 Training the Neural Network
+### 3.2 Training the Neural Network
 The Convolutional Neural Network can be trained by executing the following command after building the docker image.
 ```
 docker run --rm \
@@ -157,13 +159,13 @@ This version of the code uses a parser to modify some of the inputs such as the 
 The actual structure of the CNN and the related training process was not changed in this milestone, because we assume that this is part of the next milestone. 
 Thus, the final model accuracy and the confusion matrix for both datasets are not optimal and much space for further improvement. 
 
-## 3.3 Saving the Model
+### 3.3 Saving the Model
 After the model training the model is saved as a `.h5` or `.keras` file in the model's directory, which is created by the download_datasets.sh script. The decision to provide both file types came from the note in the documentation that the `.h5` filetype is deprecated and the newer version `.keras` is recommended.  
 If the file ending provided via the parser is neither `.h5` nor `.keras` an error message is printed out.  
 It is also important to mention that we are aware that not all edge cases for inputs via the parser are modelled out. This could be improved in the future by better exception handling to improve the stability and robustness of the code. 
 As long as this is not the case the code should be exactly executed how it is described in the `README.md`.
 
-## 3.4 Loading files and Model Evaluation
+### 3.4 Loading files and Model Evaluation
 The trained stored model can be loaded afterwards by using this command in the CLI.
 ```
 docker run --rm \
@@ -178,7 +180,7 @@ The important thing here is the change of the `--mode` form `train` to `test`. W
 If the command is executed the model and the related dataset are loaded. But this time we are only using the test data for model evaluation. The model evaluation only consists of the loss and accuracy, like in the previous milestone.  
 The a new added function in the evaluation part is the confusion matrix, which is stored in the `image` directory, like 9 example images from the test and train part of the dataset. 
 
-## 3.5 Performing predictions with the trained model
+### 3.5 Performing predictions with the trained model
 The last `--mode` of the parse in this project is `classify`, which allows to make a prediction using a trained model from a local image which is stored in the `datasets` or `ìmages` folder and provided to the code via the CLI as parser argument. 
 ```
 docker run --rm \
