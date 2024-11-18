@@ -47,13 +47,24 @@ All python module are stored in the `src` folder. This folder includes:
 5) In the `data_loader.py` module the data is loaded from the local directory and preprocessed for the CNN. 
 5) In the `train.py` module the train process takes place. So far it only includes the the train function, which is quite less for one module. But for future development and extending this function more easily, it was also separated into an additional module.
 
-Moreover addtional directories are create for shell-scripts (`scripts`), for images that are created by the code (`images`) and for datasets for model training and testing (`datasets`)
-In the root directory there are the `.gitignore`,`README.md` and `requirements.txt` files, like in the previous milestone. The only new file here is the `dockerignore` file to exclude directories and files from teh docker build process.
+Moreover, additional directories are created for shell-scripts (`scripts`), for images that are created by the code (`images`) and for datasets for model training and testing (`datasets`)
+In the root directory, there are the `.gitignore`,`README.md` and `requirements.txt` files, like in the previous milestone. The only new file here is the `dockerignore` file to exclude directories and files from the docker build process.
 
 Overall, the codebase is separate and very detailed. This detailed structure was chosen to be prepared to be prepared for future milestones because we don't know yet how complex and complicated the code will become in the next weeks.
 This is why it seemed better to have a more detailed codebase structure.
 
+### 4.2 Formatting Code according Pep8
 
+“Pep8” is the acronym for “Python Enhancement Proposal 8”.
+This proposal contains guidelines and conventions on how to write (python) code that is more standardized and thus allows for easier readability, which in turn fosters understanding and makes collaboration (and documentation) more streamlined and accessible.
+Exemplary conventions include utilizing 4 indentations instead of tabulating, limiting code lines to 79 and documentation lines to 72 characters respectively and only ever importing one module per line of code.  
+Formatting code according to Pep8 can be quite hard and tedious. This is the way the autopep8 extension was installed in vscode. After the installation of this extension and modification of the JSON settings file with the following lines code is auto-formated according to pep8 evertime, when it is saved.
+```json
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.formatOnSave": true
+  }
+```
 
 
 
