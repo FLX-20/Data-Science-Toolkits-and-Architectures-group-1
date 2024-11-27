@@ -6,6 +6,8 @@ from train import train_model
 from evaluate import evaluate_model, predict_image_label
 from save_load_models import load_model_from_keras, save_model
 
+# dev of milestone 3
+
 
 def main():
 
