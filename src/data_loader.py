@@ -2,6 +2,44 @@ import pathlib
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+import zipfile
+import urllib.request
+import os
+
+
+def download_and_extract_zip(url, output_dir):
+
+    try:
+        # Get file name
+        filename = url.split('/')[-1]
+
+        # check if dirctory exists
+        if not os.path.exists(output_dir):
+            print(f"Directory {output_dir} does not exist. Creating it...")
+            os.makedirs(output_dir)
+        else:
+            print(f"Directory {output_dir} already exists.")
+
+        # Download file
+        print(f"Downloading {url}...")
+        local_zip_path = os.path.join(output_dir, filename)
+        urllib.request.urlretrieve(url, local_zip_path)
+        print(f"Downloaded to {local_zip_path}")
+
+        # Extract Zip
+        print(f"Extracting contents to {output_dir}...")
+        with zipfile.ZipFile(local_zip_path, 'r') as zip_ref:
+            zip_ref.extractall(output_dir)
+        print("Extraction complete.")
+
+        # Delete ZIP
+        os.remove(local_zip_path)
+        print(f"Deleted the ZIP file: {local_zip_path}")
+
+        return output_dir
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 
 def preprocess_images_and_labels(dataset, num_classes):
