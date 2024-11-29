@@ -1,3 +1,5 @@
+from db_operations import insert_image_metadata
+import uuid
 import pathlib
 import tensorflow as tf
 import numpy as np
@@ -14,11 +16,7 @@ def download_and_extract_zip(url, output_dir):
         filename = url.split('/')[-1]
 
         # check if dirctory exists
-        if not os.path.exists(output_dir):
-            print(f"Directory {output_dir} does not exist. Creating it...")
-            os.makedirs(output_dir)
-        else:
-            print(f"Directory {output_dir} already exists.")
+        os.makedirs(output_dir, exist_ok=True)
 
         # Download file
         print(f"Downloading {url}...")
@@ -31,6 +29,20 @@ def download_and_extract_zip(url, output_dir):
         with zipfile.ZipFile(local_zip_path, 'r') as zip_ref:
             zip_ref.extractall(output_dir)
         print("Extraction complete.")
+
+        # Process each image in the extracted files
+        for root, _, files in os.walk(output_dir):
+            for file in files:
+                if file.lower().endswith((".png", ".jpg", ".jpeg")):
+                    file_path = os.path.join(root, file)
+                    unique_id = uuid.uuid4()
+                    print(f"Processing image: {file}")
+
+                    # Save metadata to the database
+                    insert_image_metadata(
+                        name=file, url=url, file_path=file_path)
+
+                    print(f"Image {file} processed with UUID: {unique_id}")
 
         # Delete ZIP
         os.remove(local_zip_path)

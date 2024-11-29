@@ -5,6 +5,7 @@ from models import build_cnn
 from train import train_model
 from evaluate import evaluate_model, predict_image_label
 from save_load_models import load_model_from_keras, save_model
+from db_operations import create_table
 
 # dev of milestone 3
 
@@ -80,6 +81,8 @@ def main():
         if not args.url_training_data:
             raise ValueError(
                 "url is reuqired to download the data")
+
+        create_table()
 
         download_and_extract_zip(args.url_training_data, './datasets')
 
