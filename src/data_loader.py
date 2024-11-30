@@ -1,6 +1,7 @@
+from db_operations import get_image_metadata_by_uuid
 from db_operations import insert_image_metadata
 import uuid
-import pathlib
+import random
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -86,56 +87,78 @@ def preprocess_images_and_labels(dataset, num_classes):
 
 def load_dataset(
     data_path,
-    batch_size=32,
     img_height=180,
     img_width=180,
     validation_split=0.2,
     seed=10
 ):
-    data_dir = pathlib.Path(data_path)
+    if not os.path.exists(data_path):
+        raise ValueError(f"'{data_path}' is not a valid directory.")
 
-    if not (data_dir.exists() and data_dir.is_dir()):
-        return f"'{data_path}' is not a valid directory."
+    # Load all image file paths
+    image_paths = [os.path.join(data_path, f) for f in os.listdir(
+        data_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
-    train_ds = tf.keras.utils.image_dataset_from_directory(
-        data_path,
-        validation_split=validation_split,
-        subset="training",
-        seed=seed,
-        image_size=(img_height, img_width),
-        batch_size=batch_size
-    )
+    if not image_paths:
+        raise ValueError("No images found in the specified directory.")
 
-    val_ds = tf.keras.utils.image_dataset_from_directory(
-        data_path,
-        validation_split=validation_split,
-        subset="validation",
-        seed=seed,
-        image_size=(img_height, img_width),
-        batch_size=batch_size
-    )
+    # Retrieve metadata for labels from the database
+    images, labels = [], []
+    for image_path in image_paths:
+        # Assuming the filename contains the UUID to match metadata
+        image_uuid = os.path.basename(image_path).split("_")[0]
+        metadata = get_image_metadata_by_uuid(image_uuid)
+        if metadata and metadata["label"]:
+            img = tf.keras.utils.load_img(
+                image_path, target_size=(img_height, img_width))
+            img = tf.keras.utils.img_to_array(img) / 255.0
+            images.append(img)
+            labels.append(metadata["label"])
+        else:
+            print(f"Metadata not found for image: {image_path}, skipping.")
 
-    class_names = train_ds.class_names
-    num_classes = len(class_names)
+    # Convert lists to NumPy arrays
+    images = np.array(images, dtype=np.float32)
+    labels = np.array(labels)
 
-    show_loaded_images(train_ds, class_names, 9,
-                       "images/examples_train_images")
-    show_loaded_images(val_ds, class_names, 9,
-                       "images/examples_test_images")
+    # Encode labels into numeric format
+    label_names = sorted(set(labels))
+    label_to_index = {name: idx for idx, name in enumerate(label_names)}
+    labels = np.array([label_to_index[label] for label in labels])
 
-    x_train, y_train = preprocess_images_and_labels(train_ds, num_classes)
-    x_test, y_test = preprocess_images_and_labels(val_ds, num_classes)
+    # Shuffle and split data into training and validation sets
+    indices = np.arange(len(images))
+    np.random.seed(seed)
+    np.random.shuffle(indices)
 
-    return (x_train, y_train), (x_test, y_test)
+    split_idx = int(len(images) * (1 - validation_split))
+    train_indices, val_indices = indices[:split_idx], indices[split_idx:]
+
+    x_train, y_train = images[train_indices], labels[train_indices]
+    x_val, y_val = images[val_indices], labels[val_indices]
+
+    # One-hot encode labels
+    num_classes = len(label_names)
+    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
+    y_val = tf.keras.utils.to_categorical(y_val, num_classes)
+
+    show_loaded_images(x_train, y_train, label_names)
+
+    return (x_train, y_train), (x_val, y_val)
 
 
-def show_loaded_images(dataset, class_names, num_images=0, filename="images.png"):
+def show_loaded_images(images, labels, class_names, num_images=9, filename="image/examples_images.jpg"):
+
+    if len(images) < num_images:
+        num_images = len(images)
+
+    random_indices = random.sample(range(len(images)), num_images)
+
     plt.figure(figsize=(10, 10))
-    for images, labels in dataset.take(1):
-        for i in range(min(num_images, len(images))):
-            ax = plt.subplot(3, 3, i + 1)
-            plt.imshow(images[i].numpy().astype("uint8"))
-            plt.title(class_names[labels[i]])
-            plt.axis("off")
+    for i, idx in enumerate(random_indices):
+        ax = plt.subplot(3, 3, i + 1)
+        plt.imshow(images[idx])
+        plt.title(class_names[np.argmax(labels[idx])])
+        plt.axis("off")
     plt.savefig(filename)
     print(f"Overview of images and their classes are stored in {filename}")

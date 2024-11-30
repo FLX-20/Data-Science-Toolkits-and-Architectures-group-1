@@ -1,19 +1,16 @@
 import argparse
 import numpy as np
-import os
-from data_loader import load_dataset, download_and_extract_zip
+from data_loader import load_dataset, download_and_extract_zip, show_loaded_images
 from models import build_cnn
 from train import train_model
 from evaluate import evaluate_model, predict_image_label
 from save_load_models import load_model_from_keras, save_model
 from db_operations import create_table
-from dotenv import load_dotenv
 
-# Load variables from .env
-load_dotenv()
+# python src/main.py --mode train --model_file_path models/cnn_model.keras --dataset_path datasets/Animals
 
-DATASET_PATH = "./datasets"
-MODEL_SAVE_PATH = "/app/models/model.keras"
+DATASET_PATH = "datasets"
+MODEL_SAVE_PATH = "models/model.keras"
 
 
 def main():

@@ -66,7 +66,7 @@ def get_image_metadata_by_uuid(uuid_input):
                 "label": result[3],
                 "dataset_name": result[4]
             }
-            print(f"Metadata found for UUID {uuid_input}: {metadata}")
+            # print(f"Metadata found for UUID {uuid_input}: {metadata}")
             return metadata
         else:
             print(f"No metadata found for UUID {uuid_input}")
@@ -86,7 +86,6 @@ def show_image(file_path):
         return None
 
     try:
-        # Load the image using PIL (Pillow)
         image = Image.open(file_path)
         print(f"Image successfully loaded from {file_path}.")
         return image
