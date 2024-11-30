@@ -9,46 +9,58 @@ import urllib.request
 import os
 
 
-def download_and_extract_zip(url, output_dir):
-
+def download_and_extract_zip(url, datasets_dir, dataset_name):
     try:
-        # Get file name
+        # Create necessary directories
+        tmp_dir = os.path.join(datasets_dir, "tmp")
+        final_dir = os.path.join(datasets_dir, dataset_name)
+        os.makedirs(tmp_dir, exist_ok=True)
+        os.makedirs(final_dir, exist_ok=True)
+
+        # Download the ZIP file
         filename = url.split('/')[-1]
-
-        # check if dirctory exists
-        os.makedirs(output_dir, exist_ok=True)
-
-        # Download file
         print(f"Downloading {url}...")
-        local_zip_path = os.path.join(output_dir, filename)
+        local_zip_path = os.path.join(tmp_dir, filename)
         urllib.request.urlretrieve(url, local_zip_path)
         print(f"Downloaded to {local_zip_path}")
 
-        # Extract Zip
-        print(f"Extracting contents to {output_dir}...")
+        # Extract ZIP file to temporary folder
+        print(f"Extracting contents to {tmp_dir}...")
         with zipfile.ZipFile(local_zip_path, 'r') as zip_ref:
-            zip_ref.extractall(output_dir)
+            zip_ref.extractall(tmp_dir)
         print("Extraction complete.")
 
-        # Process each image in the extracted files
-        for root, _, files in os.walk(output_dir):
+        # Process extracted files and move them to the final folder
+        for root, _, files in os.walk(tmp_dir):
             for file in files:
                 if file.lower().endswith((".png", ".jpg", ".jpeg")):
                     file_path = os.path.join(root, file)
+                    label = os.path.basename(os.path.dirname(
+                        file_path))  # Folder name as label
                     unique_id = uuid.uuid4()
-                    print(f"Processing image: {file}")
 
-                    # Save metadata to the database
+                    # Move file to the final dataset folder
+                    final_file_path = os.path.join(
+                        final_dir, f"{unique_id}_{file}")
+                    os.rename(file_path, final_file_path)
+
+                    # Store metadata in the database
                     insert_image_metadata(
-                        name=file, url=url, file_path=file_path)
+                        image_id=unique_id,
+                        url=url,
+                        file_path=final_file_path,
+                        label=label,
+                        dataset_name=dataset_name
+                    )
+                    print(f"Image {file} processed and moved to {
+                          final_file_path}")
 
-                    print(f"Image {file} processed with UUID: {unique_id}")
-
-        # Delete ZIP
+        # Clean up temporary folder
         os.remove(local_zip_path)
-        print(f"Deleted the ZIP file: {local_zip_path}")
+        os.rmdir(tmp_dir)
+        print(f"Temporary files deleted.")
 
-        return output_dir
+        return final_dir
     except Exception as e:
         print(f"An error occurred: {e}")
         return None

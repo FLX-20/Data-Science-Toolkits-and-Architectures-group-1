@@ -1,42 +1,41 @@
 import psycopg2
-import uuid
 from db_connection import create_connection
 
 
 def create_table():
-
     query = """
     CREATE TABLE IF NOT EXISTS images (
-    id UUID PRIMARY KEY,
-    name TEXT,
-    url TEXT,
-    file_path TEXT);
+        id UUID PRIMARY KEY,
+        url TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        label TEXT NOT NULL,
+        dataset_name TEXT NOT NULL
+    );
     """
     try:
         conn, cursor = create_connection()
         cursor.execute(query)
         conn.commit()
-        print("Cartoon table created successfully.")
-    except (Exception, psycopg2.databaseError) as error:
-        print("Error creating cartoon table:", error)
+        print("Image table created successfully.")
+    except (Exception, psycopg2.DatabaseError) as error:
+        print("Error creating image table:", error)
     finally:
         conn.close()
 
 
-def insert_image_metadata(name, url, file_path):
+def insert_image_metadata(image_id, url, file_path, label, dataset_name):
     query = """
-    INSERT INTO images (id, name, url, file_path)
-    VALUES (%s, %s, %s, %s)
+    INSERT INTO images (id, url, file_path, label, dataset_name)
+    VALUES (%s, %s, %s, %s, %s)
     """
     try:
-        image_id = uuid.uuid4()  # Generate a UUID
         conn, cursor = create_connection()
-        # Convert UUID to string
-        cursor.execute(query, (str(image_id), name, url, file_path))
+        cursor.execute(query, (str(image_id), url,
+                       file_path, label, dataset_name))
         conn.commit()
         print(f"Image metadata for {
-              name} inserted successfully with ID {image_id}.")
+              image_id} inserted successfully with ID {image_id}.")
     except Exception as error:
-        print(f"Error inserting metadata for {name}:", error)
+        print(f"Error inserting metadata for {image_id}:", error)
     finally:
         conn.close()

@@ -1,13 +1,19 @@
 import argparse
 import numpy as np
+import os
 from data_loader import load_dataset, download_and_extract_zip
 from models import build_cnn
 from train import train_model
 from evaluate import evaluate_model, predict_image_label
 from save_load_models import load_model_from_keras, save_model
 from db_operations import create_table
+from dotenv import load_dotenv
 
-# dev of milestone 3
+# Load variables from .env
+load_dotenv()
+
+DATASET_PATH = "./datasets"
+MODEL_SAVE_PATH = "/app/models/model.keras"
 
 
 def main():
@@ -18,9 +24,9 @@ def main():
                         help="Mode to run: download training data, train or test, classify")
     parser.add_argument("--url_training_data", type=str,
                         help="url from which the training data should be downloaded")
-    parser.add_argument("--model_file_path", type=str,
+    parser.add_argument("--model_file_path", type=str, default=MODEL_SAVE_PATH,
                         help="Path to save the model after training and load it before testing.")
-    parser.add_argument("--dataset_path", type=str,
+    parser.add_argument("--dataset_path", type=str, default=DATASET_PATH,
                         help="Path to the datafolder")
     parser.add_argument("--single_image_path", type=str,
                         help="Path to a single image for classification (required for classify mode).")
@@ -30,9 +36,11 @@ def main():
                         help="Number of epochs for training.")
 
     args = parser.parse_args()
+    print("Entered arguments:", vars(args))
 
     if args.mode == "train":
 
+        print("Starting training process...")
         if not args.dataset_path:
             raise ValueError("Dataset path is required for training mode.")
         if not args.model_file_path:
@@ -49,9 +57,11 @@ def main():
         train_model(model, x_train, y_train, args.batch_size, args.epochs)
 
         save_model(model, args.model_file_path)
+        print(f"Model saved to {args.model_file_path}")
 
     elif args.mode == "test":
 
+        print("Starting testing process...")
         if not args.dataset_path:
             raise ValueError("Dataset path is required for testing mode.")
         if not args.model_file_path:
@@ -84,7 +94,9 @@ def main():
 
         create_table()
 
-        download_and_extract_zip(args.url_training_data, './datasets')
+        download_and_extract_zip(
+            args.url_training_data, DATASET_PATH, dataset_name="Animals")
+        print(f"Data downloaded and extracted to {args.dataset_path}")
 
 
 if __name__ == "__main__":
