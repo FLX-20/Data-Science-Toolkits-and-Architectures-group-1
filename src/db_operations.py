@@ -1,3 +1,5 @@
+import os
+from PIL import Image
 import psycopg2
 from db_connection import create_connection
 
@@ -75,3 +77,19 @@ def get_image_metadata_by_uuid(uuid_input):
         return None
     finally:
         conn.close()
+
+
+def show_image(file_path):
+
+    if not os.path.exists(file_path):
+        print(f"Image file does not exist at path: {file_path}")
+        return None
+
+    try:
+        # Load the image using PIL (Pillow)
+        image = Image.open(file_path)
+        print(f"Image successfully loaded from {file_path}.")
+        return image
+    except Exception as error:
+        print(f"Error loading image from {file_path}: {error}")
+        return None
