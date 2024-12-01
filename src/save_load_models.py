@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 
 
@@ -13,12 +14,12 @@ def load_model_from_keras(load_model_path):
 
 def save_model(model, model_file_path):
 
-    if model_file_path.endswith(".keras"):
-        model.save(model_file_path, save_format="keras")
-        print(f"Model saved in Keras format at {model_file_path}")
-    elif model_file_path.endswith(".h5"):
-        model.save(model_file_path, save_format="h5")
-        print(f"Model saved in HDF5 format at {model_file_path}")
+    os.makedirs(os.path.dirname(model_file_path), exist_ok=True)
+
+    if model_file_path.endswith(".keras") or model_file_path.endswith(".h5"):
+        model.save(model_file_path)
+        print(f"Model saved successfully at {model_file_path}")
     else:
         raise ValueError(
-            "Invalid file extension. Please use '.keras' or '.h5' for the file path.")
+            "Invalid file extension. Please use '.keras' or '.h5' for the file path."
+        )

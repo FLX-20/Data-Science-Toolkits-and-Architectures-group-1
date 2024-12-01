@@ -44,7 +44,7 @@ def main():
             raise ValueError(
                 "model file path for saving the model is required")
 
-        (x_train, y_train), (x_test, y_test) = load_dataset(args.dataset_path)
+        (x_train, y_train), _ = load_dataset(args.dataset_path)
 
         num_classes = len(np.unique(y_train)) + 1
         input_shape = x_train.shape[1:]
