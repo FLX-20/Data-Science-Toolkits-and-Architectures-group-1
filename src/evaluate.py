@@ -3,6 +3,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from tensorflow.keras.preprocessing import image as keras_image
 import numpy as np
 import os
+from app_config import IMAGE_SAVE_PATH
 
 
 def evaluate_model(model, x_test, y_test):
@@ -21,11 +22,11 @@ def plot_confusion_matrix(classifier, test_data, test_labels):
     _, ax = plt.subplots(figsize=(12, 12))
     ConfusionMatrixDisplay(cm).plot(cmap="Blues", ax=ax)
 
-    output_dir = "./images/"
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(IMAGE_SAVE_PATH, exist_ok=True)
+    file_path = os.path.join(IMAGE_SAVE_PATH, "confusion_matrix.png")
 
     plt.title("Normalized Confusion Matrix")
-    plt.savefig("images/confusion_matrix.png")
+    plt.savefig(file_path)
     print("Confusion matrix saved as confusion_matrix.png")
 
 

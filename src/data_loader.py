@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 import zipfile
 import urllib.request
 import os
+from app_config import DATASET_PATH, IMAGE_SAVE_PATH
 
 
-def download_and_extract_zip(url, datasets_dir, dataset_name):
+def download_and_extract_zip(url, dataset_name):
     try:
         # Create necessary directories
-        tmp_dir = os.path.join(datasets_dir, "tmp")
-        final_dir = os.path.join(datasets_dir, dataset_name)
+        tmp_dir = os.path.join(DATASET_PATH, "tmp")
+        final_dir = os.path.join(DATASET_PATH, dataset_name)
         os.makedirs(tmp_dir, exist_ok=True)
         os.makedirs(final_dir, exist_ok=True)
 
@@ -53,8 +54,6 @@ def download_and_extract_zip(url, datasets_dir, dataset_name):
                         label=label,
                         dataset_name=dataset_name
                     )
-                    print(f"Image {file} processed and moved to {
-                          final_file_path}")
 
         # Clean up temporary folder
         os.remove(local_zip_path)
@@ -86,12 +85,14 @@ def preprocess_images_and_labels(dataset, num_classes):
 
 
 def load_dataset(
-    data_path,
+    dataset_name,
     img_height=180,
     img_width=180,
     validation_split=0.2,
     seed=10
 ):
+    data_path = os.path.join(DATASET_PATH, dataset_name)
+
     if not os.path.exists(data_path):
         raise ValueError(f"'{data_path}' is not a valid directory.")
 
@@ -100,7 +101,8 @@ def load_dataset(
         data_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
     if not image_paths:
-        raise ValueError("No images found in the specified directory.")
+        raise ValueError(
+            f"No images found in the specified directory {data_path}")
 
     # Retrieve metadata for labels from the database
     images, labels = [], []
@@ -147,7 +149,10 @@ def load_dataset(
     return (x_train, y_train), (x_val, y_val)
 
 
-def show_loaded_images(images, labels, class_names, num_images=9, filename="image/examples_images.jpg"):
+def show_loaded_images(images, labels, class_names, num_images=9, filename="examples_images.jpg"):
+
+    os.makedirs(IMAGE_SAVE_PATH, exist_ok=True)
+    file_path = os.path.join(IMAGE_SAVE_PATH, filename)
 
     if len(images) < num_images:
         num_images = len(images)
@@ -160,5 +165,5 @@ def show_loaded_images(images, labels, class_names, num_images=9, filename="imag
         plt.imshow(images[idx])
         plt.title(class_names[np.argmax(labels[idx])])
         plt.axis("off")
-    plt.savefig(filename)
-    print(f"Overview of images and their classes are stored in {filename}")
+    plt.savefig(file_path)
+    print(f"Overview of images and their classes are stored in {file_path}")

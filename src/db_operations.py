@@ -35,8 +35,8 @@ def insert_image_metadata(image_id, url, file_path, label, dataset_name):
         cursor.execute(query, (str(image_id), url,
                        file_path, label, dataset_name))
         conn.commit()
-        print(f"Image metadata for {
-              image_id} inserted successfully with ID {image_id}.")
+        # print(f"Image metadata for {
+        #      image_id} inserted successfully with ID {image_id}.")
     except Exception as error:
         print(f"Error inserting metadata for {image_id}:", error)
     finally:
