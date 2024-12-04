@@ -1,12 +1,12 @@
 import argparse
 import os
 import numpy as np
-from data_loader import load_dataset, download_and_extract_zip, show_loaded_images
+from data_loader import load_dataset,  download_and_prepare_dataset
 from models import build_cnn
 from train import train_model
 from evaluate import evaluate_model, predict_image_label
 from save_load_models import load_model_from_keras, save_model
-from db_operations import create_table
+from db_operations import create_table, create_predictions_table
 from app_config import DATASET_PATH
 
 # python src/main.py --mode train --model_name model/cnn_model.keras --dataset_path datasets/Animals
@@ -48,7 +48,7 @@ def main():
 
         os.makedirs(DATASET_PATH, exist_ok=True)
 
-        download_and_extract_zip(
+        download_and_prepare_dataset(
             args.url_training_data, args.dataset_name)
 
         print(f"Data downloaded and extracted Data")
@@ -63,7 +63,7 @@ def main():
             raise ValueError(
                 "Model file path for saving the model is required.")
 
-        (x_train, y_train), _ = load_dataset(args.dataset_name)
+        x_train, y_train = load_dataset(args.dataset_name, is_training=True)
 
         num_classes = len(np.unique(y_train)) + 1
         input_shape = x_train.shape[1:]
@@ -87,7 +87,7 @@ def main():
 
         model = load_model_from_keras(args.model_name)
 
-        _, (x_test, y_test) = load_dataset(args.dataset_name)
+        x_test, y_test = load_dataset(args.dataset_name, is_training=False)
 
         evaluate_model(model, x_test, y_test)
 
@@ -99,6 +99,8 @@ def main():
         if not args.model_name:
             raise ValueError(
                 "Model file path for loading the model is required.")
+
+        create_predictions_table()
 
         model = load_model_from_keras(args.model_name)
 

@@ -8,8 +8,7 @@ import zipfile
 import urllib.request
 import os
 from app_config import DATASET_PATH, IMAGE_SAVE_PATH
-from db_operations import get_image_metadata_by_uuid
-from db_operations import insert_image_metadata
+from db_operations import split_data_into_training_and_testing, insert_image_metadata, create_connection
 
 
 def download_zip(url, tmp_dir):
@@ -52,24 +51,24 @@ def process_and_store_files(tmp_dir, final_dir, url, dataset_name):
         os.makedirs(final_dir, exist_ok=True)
         for root, _, files in os.walk(tmp_dir):
             for file in files:
-                if file.lower().endswith((".png", ".jpg", ".jpeg")):
+                if file.lower().endswith((".jpg")):
                     file_path = os.path.join(root, file)
                     label = os.path.basename(os.path.dirname(
                         file_path))
                     unique_id = uuid.uuid4()
 
                     final_file_path = os.path.join(
-                        final_dir, f"{unique_id}_{file}")
+                        final_dir, f"{unique_id}.jpg")
                     os.rename(file_path, final_file_path)
 
                     # Store metadata in the database
                     insert_image_metadata(
                         image_id=unique_id,
                         url=url,
-                        file_path=final_file_path,
                         label=label,
                         dataset_name=dataset_name
                     )
+
     except Exception as e:
         print(f"Error during file processing: {e}")
         raise
@@ -89,8 +88,11 @@ def download_and_prepare_dataset(url, dataset_name):
         # Process files and store metadata
         process_and_store_files(tmp_dir, final_dir, url, dataset_name)
 
+        # Divide in Training and Testing Data
+        split_data_into_training_and_testing()
+
         # Clean up temporary files
-        clean_up(local_zip_path)
+        os.remove(local_zip_path)
         clean_up(tmp_dir)
         print("Temporary files deleted.")
 
@@ -118,69 +120,48 @@ def preprocess_images_and_labels(dataset, num_classes):
     return images, labels
 
 
-def load_dataset(
-    dataset_name,
-    img_height=180,
-    img_width=180,
-    validation_split=0.2,
-    seed=10
-):
+def load_dataset(dataset_name, is_training=True, img_height=180, img_width=180):
+    """
+    Loads dataset based on training/testing flag.
+    """
     data_path = os.path.join(DATASET_PATH, dataset_name)
-
     if not os.path.exists(data_path):
-        raise ValueError(f"'{data_path}' is not a valid directory.")
+        raise ValueError(f"Invalid directory: {data_path}")
 
-    # Load all image file paths
-    image_paths = [os.path.join(data_path, f) for f in os.listdir(
-        data_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    query = "SELECT id, label FROM images WHERE is_training = %s;"
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(query, (is_training,))
+        rows = cursor.fetchall()
+        if not rows:
+            raise ValueError("No data found for the specified flag.")
 
-    if not image_paths:
-        raise ValueError(
-            f"No images found in the specified directory {data_path}")
+        images, labels = [], []
+        for image_id, label in rows:
+            # Construct the image file path directly from the unique image_id
+            img_path = os.path.join(data_path, f"{image_id}.jpg")
 
-    # Retrieve metadata for labels from the database
-    images, labels = [], []
-    for image_path in image_paths:
-        # Assuming the filename contains the UUID to match metadata
-        image_uuid = os.path.basename(image_path).split("_")[0]
-        metadata = get_image_metadata_by_uuid(image_uuid)
-        if metadata and metadata["label"]:
+            if not os.path.exists(img_path):
+                print(f"Image not found for ID {image_id}, skipping.")
+                continue
+
             img = tf.keras.utils.load_img(
-                image_path, target_size=(img_height, img_width))
-            img = tf.keras.utils.img_to_array(img) / 255.0
-            images.append(img)
-            labels.append(metadata["label"])
-        else:
-            print(f"Metadata not found for image: {image_path}, skipping.")
+                img_path, target_size=(img_height, img_width))
+            images.append(tf.keras.utils.img_to_array(img) / 255.0)
+            labels.append(label)
 
-    # Convert lists to NumPy arrays
-    images = np.array(images, dtype=np.float32)
-    labels = np.array(labels)
+        # Encode labels
+        label_names = sorted(set(labels))
+        labels = np.array([label_names.index(label) for label in labels])
 
-    # Encode labels into numeric format
-    label_names = sorted(set(labels))
-    label_to_index = {name: idx for idx, name in enumerate(label_names)}
-    labels = np.array([label_to_index[label] for label in labels])
+        images = np.array(images, dtype=np.float32)
+        labels = tf.keras.utils.to_categorical(labels, len(label_names))
 
-    # Shuffle and split data into training and validation sets
-    indices = np.arange(len(images))
-    np.random.seed(seed)
-    np.random.shuffle(indices)
-
-    split_idx = int(len(images) * (1 - validation_split))
-    train_indices, val_indices = indices[:split_idx], indices[split_idx:]
-
-    x_train, y_train = images[train_indices], labels[train_indices]
-    x_val, y_val = images[val_indices], labels[val_indices]
-
-    # One-hot encode labels
-    num_classes = len(label_names)
-    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
-    y_val = tf.keras.utils.to_categorical(y_val, num_classes)
-
-    show_loaded_images(x_train, y_train, label_names)
-
-    return (x_train, y_train), (x_val, y_val)
+        return images, labels
+    except Exception as e:
+        raise RuntimeError(f"Error loading dataset: {e}")
+    finally:
+        conn.close()
 
 
 def show_loaded_images(images, labels, class_names, num_images=9, filename="examples_images.jpg"):
