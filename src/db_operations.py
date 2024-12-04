@@ -1,6 +1,8 @@
 import os
 import psycopg2
 import random
+import numpy as np
+import tensorflow as tf
 from PIL import Image
 from db_connection import create_connection
 
@@ -131,6 +133,86 @@ def split_data_into_training_and_testing(validation_split=0.2, seed=24):
         print(f"Error during data split: {e}")
     finally:
         conn.close()
+
+
+def get_uuids(is_training=True):
+    """
+    Returns all training or testing UUIDs based on the input flag.
+    """
+    query = "SELECT id FROM images WHERE is_training = %s;"
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(query, (is_training,))
+        rows = cursor.fetchall()
+        return [row[0] for row in rows]
+    except Exception as e:
+        raise RuntimeError(f"Error fetching UUIDs: {e}")
+    finally:
+        conn.close()
+
+
+def get_metadata_by_uuids(uuids):
+    """
+    Retrieves metadata for the given list of UUIDs.
+    """
+    placeholders = ','.join(['%s'] * len(uuids))
+    query = f"SELECT id, url, label, dataset_name FROM images WHERE id IN ({
+        placeholders});"
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(query, tuple(uuids))
+        return cursor.fetchall()
+    except Exception as e:
+        raise RuntimeError(f"Error fetching metadata: {e}")
+    finally:
+        conn.close()
+
+
+def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_width=180):
+    """
+    Loads and preprocesses images and retrieves their labels, encoding the labels for model training.
+    """
+    images = []
+    labels = []
+
+    # Retrieve metadata (labels included)
+    placeholders = ','.join(['%s'] * len(uuids))
+    query = f"SELECT id, label FROM images WHERE id IN ({placeholders});"
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(query, tuple(uuids))
+        rows = cursor.fetchall()  # Each row contains (id, label)
+    except Exception as e:
+        raise RuntimeError(f"Error fetching image labels: {e}")
+    finally:
+        conn.close()
+
+    # Load images and collect labels
+    for uuid, label in rows:
+        img_path = os.path.join(dataset_path, f"{uuid}.jpg")
+        if not os.path.exists(img_path):
+            print(f"Image not found for UUID {uuid}, skipping.")
+            continue
+
+        # Load and preprocess the image
+        img = tf.keras.utils.load_img(
+            img_path, target_size=(img_height, img_width))
+        img_array = tf.keras.utils.img_to_array(img) / 255.0
+
+        images.append(img_array)
+        labels.append(label)
+
+    # Encode labels
+    label_names = sorted(set(labels))  # Get sorted unique label names
+    labels = np.array([label_names.index(label)
+                      for label in labels])  # Encode labels as integers
+    labels = tf.keras.utils.to_categorical(
+        labels, len(label_names))  # One-hot encode labels
+
+    # Convert images to numpy array
+    images = np.array(images, dtype=np.float32)
+
+    return images, labels
 
 
 def show_image(file_path):
