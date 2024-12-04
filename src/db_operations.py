@@ -4,7 +4,26 @@ import psycopg2
 from db_connection import create_connection
 
 
+import psycopg2
+from psycopg2 import sql
+
+
+def execute_query(query):
+
+    try:
+        conn, cursor = create_connection()
+        with conn, conn.cursor() as cursor:
+            cursor.execute(query)
+            print("Query executed successfully.")
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(f"Error executing query: {error}")
+    finally:
+        if conn:
+            conn.close()
+
+
 def create_table():
+
     query = """
     CREATE TABLE IF NOT EXISTS images (
         id UUID PRIMARY KEY,
@@ -14,15 +33,21 @@ def create_table():
         dataset_name TEXT NOT NULL
     );
     """
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query)
-        conn.commit()
-        print("Image table created successfully.")
-    except (Exception, psycopg2.DatabaseError) as error:
-        print("Error creating image table:", error)
-    finally:
-        conn.close()
+    execute_query(query)
+
+
+def create_predictions_table():
+
+    query = """
+    CREATE TABLE IF NOT EXISTS image_predictions (
+        id UUID PRIMARY KEY,
+        image_id UUID NOT NULL REFERENCES images(id) ON DELETE CASCADE,
+        predicted_label TEXT NOT NULL,
+        model_name TEXT NOT NULL,
+        prediction_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """
+    execute_query(query)
 
 
 def insert_image_metadata(image_id, url, file_path, label, dataset_name):
