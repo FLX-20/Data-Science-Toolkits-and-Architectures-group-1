@@ -1,6 +1,5 @@
-from db_operations import get_image_metadata_by_uuid
-from db_operations import insert_image_metadata
 import uuid
+import shutil
 import random
 import tensorflow as tf
 import numpy as np
@@ -9,39 +8,56 @@ import zipfile
 import urllib.request
 import os
 from app_config import DATASET_PATH, IMAGE_SAVE_PATH
+from db_operations import get_image_metadata_by_uuid
+from db_operations import insert_image_metadata
 
 
-def download_and_extract_zip(url, dataset_name):
+def download_zip(url, tmp_dir):
     try:
-        # Create necessary directories
-        tmp_dir = os.path.join(DATASET_PATH, "tmp")
-        final_dir = os.path.join(DATASET_PATH, dataset_name)
         os.makedirs(tmp_dir, exist_ok=True)
-        os.makedirs(final_dir, exist_ok=True)
-
-        # Download the ZIP file
         filename = url.split('/')[-1]
-        print(f"Downloading {url}...")
         local_zip_path = os.path.join(tmp_dir, filename)
+        print(f"Downloading {url}...")
         urllib.request.urlretrieve(url, local_zip_path)
         print(f"Downloaded to {local_zip_path}")
+        return local_zip_path
+    except Exception as e:
+        print(f"Error during download: {e}")
+        raise
 
-        # Extract ZIP file to temporary folder
-        print(f"Extracting contents to {tmp_dir}...")
-        with zipfile.ZipFile(local_zip_path, 'r') as zip_ref:
-            zip_ref.extractall(tmp_dir)
+
+def extract_zip(zip_path, extract_to):
+    try:
+        print(f"Extracting contents to {extract_to}...")
+        os.makedirs(extract_to, exist_ok=True)
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_to)
         print("Extraction complete.")
+    except Exception as e:
+        print(f"Error during extraction: {e}")
+        raise
 
-        # Process extracted files and move them to the final folder
+
+def clean_up(folder_path):
+    try:
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+            print(f"Folder {folder_path} and its contents have been deleted.")
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
+
+
+def process_and_store_files(tmp_dir, final_dir, url, dataset_name):
+    try:
+        os.makedirs(final_dir, exist_ok=True)
         for root, _, files in os.walk(tmp_dir):
             for file in files:
                 if file.lower().endswith((".png", ".jpg", ".jpeg")):
                     file_path = os.path.join(root, file)
                     label = os.path.basename(os.path.dirname(
-                        file_path))  # Folder name as label
+                        file_path))
                     unique_id = uuid.uuid4()
 
-                    # Move file to the final dataset folder
                     final_file_path = os.path.join(
                         final_dir, f"{unique_id}_{file}")
                     os.rename(file_path, final_file_path)
@@ -54,11 +70,29 @@ def download_and_extract_zip(url, dataset_name):
                         label=label,
                         dataset_name=dataset_name
                     )
+    except Exception as e:
+        print(f"Error during file processing: {e}")
+        raise
 
-        # Clean up temporary folder
-        os.remove(local_zip_path)
-        os.rmdir(tmp_dir)
-        print(f"Temporary files deleted.")
+
+def download_and_prepare_dataset(url, dataset_name):
+    tmp_dir = os.path.join(DATASET_PATH, "tmp")
+    final_dir = os.path.join(DATASET_PATH, dataset_name)
+
+    try:
+        # Download the ZIP file
+        local_zip_path = download_zip(url, tmp_dir)
+
+        # Extract ZIP file
+        extract_zip(local_zip_path, tmp_dir)
+
+        # Process files and store metadata
+        process_and_store_files(tmp_dir, final_dir, url, dataset_name)
+
+        # Clean up temporary files
+        clean_up(local_zip_path)
+        clean_up(tmp_dir)
+        print("Temporary files deleted.")
 
         return final_dir
     except Exception as e:
