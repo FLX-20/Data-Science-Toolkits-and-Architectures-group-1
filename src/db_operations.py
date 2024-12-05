@@ -59,6 +59,7 @@ def insert_image_metadata(image_id, url, label, dataset_name):
 
 
 def get_image_metadata_by_uuid(uuid_input):
+
     query = """
     SELECT id, url, label, dataset_name
     FROM images
@@ -70,17 +71,13 @@ def get_image_metadata_by_uuid(uuid_input):
         cursor.execute(query, (uuid_input,))
         result = cursor.fetchone()
 
-        # Check if result is None or has fewer columns than expected
         if result:
-
-            # Map the result to a dictionary
             metadata = {
                 "id": result[0],
                 "url": result[1],
                 "label": result[3],
                 "dataset_name": result[4]
             }
-            # print(f"Metadata found for UUID {uuid_input}: {metadata}")
             return metadata
         else:
             print(f"No metadata found for UUID {uuid_input}")
@@ -94,6 +91,7 @@ def get_image_metadata_by_uuid(uuid_input):
 
 
 def split_data_into_training_and_testing(validation_split=0.2, seed=24):
+
     query = """
     SELECT id, label FROM images
     """
@@ -136,9 +134,7 @@ def split_data_into_training_and_testing(validation_split=0.2, seed=24):
 
 
 def get_uuids(is_training=True):
-    """
-    Returns all training or testing UUIDs based on the input flag.
-    """
+
     query = "SELECT id FROM images WHERE is_training = %s;"
     try:
         conn, cursor = create_connection()
@@ -152,9 +148,7 @@ def get_uuids(is_training=True):
 
 
 def get_metadata_by_uuids(uuids):
-    """
-    Retrieves metadata for the given list of UUIDs.
-    """
+
     placeholders = ','.join(['%s'] * len(uuids))
     query = f"SELECT id, url, label, dataset_name FROM images WHERE id IN ({
         placeholders});"
@@ -169,19 +163,17 @@ def get_metadata_by_uuids(uuids):
 
 
 def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_width=180):
-    """
-    Loads and preprocesses images and retrieves their labels, encoding the labels for model training.
-    """
+
     images = []
     labels = []
 
-    # Retrieve metadata (labels included)
+    # Retrieve metadata
     placeholders = ','.join(['%s'] * len(uuids))
     query = f"SELECT id, label FROM images WHERE id IN ({placeholders});"
     try:
         conn, cursor = create_connection()
         cursor.execute(query, tuple(uuids))
-        rows = cursor.fetchall()  # Each row contains (id, label)
+        rows = cursor.fetchall()
     except Exception as e:
         raise RuntimeError(f"Error fetching image labels: {e}")
     finally:
@@ -203,11 +195,11 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_wid
         labels.append(label)
 
     # Encode labels
-    label_names = sorted(set(labels))  # Get sorted unique label names
+    label_names = sorted(set(labels))
     labels = np.array([label_names.index(label)
-                      for label in labels])  # Encode labels as integers
+                      for label in labels])
     labels = tf.keras.utils.to_categorical(
-        labels, len(label_names))  # One-hot encode labels
+        labels, len(label_names))
 
     # Convert images to numpy array
     images = np.array(images, dtype=np.float32)
