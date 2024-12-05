@@ -1,4 +1,4 @@
-from db_operations import create_table, create_predictions_table, create_connection, get_uuids, load_images_and_labels_by_uuids
+from db_operations import create_table, create_predictions_table, create_connection, get_uuids, load_images_and_labels_by_uuids, get_metadata_by_uuids
 from app_config import DATASET_PATH
 from save_load_models import load_model_from_keras, save_model
 from evaluate import evaluate_model
@@ -104,44 +104,55 @@ def main():
         evaluate_model(model, images, labels)
 
     def classify_image_func():
-        if not args.dataset_name:
-            raise ValueError("Dataset name is required for classify mode.")
-        if not args.model_name:
-            raise ValueError(
-                "Model file path for loading the model is required.")
-
-        # Ensure the predictions table exists
         create_predictions_table()
 
-        # Load the model
         model = load_model_from_keras(args.model_name)
 
-        # Load the test data
-        x_test, _ = load_dataset(args.dataset_name, is_training=False)
+        if not model:
+            raise ValueError("Failed to load the model.")
 
-        # Predict on the test data
-        predictions = model.predict(x_test)
-        predicted_labels = np.argmax(predictions, axis=1)
+        # Fetch UUIDs for testing
+        testing_uuids = get_uuids(is_training=True)
 
-        # Save predictions to the database
+        # Load images and labels for testing
+        images, _ = load_images_and_labels_by_uuids(
+            testing_uuids, os.path.join(DATASET_PATH, args.dataset_name))
+
+        # Predict labels
+        predictions = model.predict(images)
+        predicted_indices = np.argmax(predictions, axis=1)
+
+        # Retrieve label names (sorted to ensure consistent indexing)
+        label_names = sorted(
+            {row[2] for row in get_metadata_by_uuids(testing_uuids)})
+
+        print(label_names)
+
+        # Convert indices to label names
+        predicted_labels = [label_names[idx] for idx in predicted_indices]
+
+        # Store predictions in the database
         try:
             conn, cursor = create_connection()
-            for image_idx, predicted_label in enumerate(predicted_labels):
+            for image_id, predicted_label in zip(testing_uuids, predicted_labels):
+                prediction_id = str(uuid.uuid4())
+                prediction_timestamp = datetime.now()
+
+                # Insert the prediction into the database
                 query = """
                 INSERT INTO image_predictions (id, image_id, predicted_label, model_name, prediction_timestamp)
                 VALUES (%s, %s, %s, %s, %s);
                 """
-                # Generate a new UUID for the prediction
-                prediction_id = str(uuid.uuid4())
-
-                # Assuming `image_id` is retrievable; adapt if x_test does not include it
-                # Modify if image_id is not directly available
-                image_id = x_test[image_idx]
-                prediction_timestamp = datetime.now()
-
-                cursor.execute(query, (prediction_id, image_id, str(
-                    predicted_label), args.model_name, prediction_timestamp))
-
+                cursor.execute(
+                    query,
+                    (
+                        prediction_id,
+                        str(image_id),
+                        predicted_label,
+                        args.model_name,
+                        prediction_timestamp,
+                    ),
+                )
             conn.commit()
             print("Predictions stored successfully in the database.")
         except Exception as e:
@@ -161,7 +172,7 @@ def main():
         download_data()
         train_model_func()
         test_model_func()
-        # classify_image_func()
+        classify_image_func()
 
 
 if __name__ == "__main__":
