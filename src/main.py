@@ -1,23 +1,9 @@
-from db_operations import create_table, create_predictions_table, create_connection, get_uuids, load_images_and_labels_by_uuids, get_metadata_by_uuids
+from cnn_operations import download_data, train_model_func, test_model_func, classify_image_func
 from app_config import DATASET_PATH
-from save_load_models import load_model_from_keras, save_model
-from evaluate import evaluate_model
-from train import train_model
-from models import build_cnn
-from data_loader import load_dataset,  download_and_prepare_dataset
-from datetime import datetime
 import argparse
-import os
-import numpy as np
-import uuid
-
-# python src/main.py --mode train --model_name model/cnn_model.keras --dataset_path datasets/Animals
-# python src/main.py --mode test --model_name model/cnn_model.keras --dataset_path datasets/Animals
-# python src/main.py --mode classify --model_name model/cnn_model.keras --single_image_path image/cat.jpeg
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         description="Train or test the CNN model.")
     parser.add_argument("--mode", choices=["download_data", "train", "test", "classify", "all"], required=True,
@@ -40,139 +26,19 @@ def main():
     args = parser.parse_args()
     print("Entered arguments:", vars(args))
 
-    def download_data():
-
-        if not args.url_training_data or not args.dataset_name:
-            raise ValueError(
-                "URL and dataset name are required for downloading data.")
-
-        create_table()
-
-        os.makedirs(DATASET_PATH, exist_ok=True)
-
-        download_and_prepare_dataset(
-            args.url_training_data, args.dataset_name)
-
-        print(f"Data downloaded and extracted Data")
-
-    def train_model_func():
-
-        print("Starting training process...")
-
-        if not args.dataset_name:
-            raise ValueError("Dataset name is required for training mode.")
-        if not args.model_name:
-            raise ValueError(
-                "Model file path for saving the model is required.")
-
-        # Fetch UUIDs for training
-        training_uuids = get_uuids(is_training=True)
-
-        # Load images and labels for training
-        images, labels = load_images_and_labels_by_uuids(
-            training_uuids, os.path.join(DATASET_PATH, args.dataset_name))
-
-        num_classes = labels.shape[1]
-        input_shape = images.shape[1:]
-
-        model = build_cnn(input_shape=input_shape, num_classes=num_classes)
-
-        train_model(model, images, labels, args.batch_size, args.epochs)
-
-        save_model(model, args.model_name)
-        print(f"Model saved successfully")
-
-    def test_model_func():
-
-        print("Starting testing process...")
-
-        if not args.dataset_name:
-            raise ValueError("Dataset name is required for testing mode.")
-        if not args.model_name:
-            raise ValueError(
-                "Model file path for loading the model is required.")
-
-        # Fetch UUIDs for testing
-        testing_uuids = get_uuids(is_training=False)
-
-        model = load_model_from_keras(args.model_name)
-
-        # Load images and labels for testing
-        images, labels = load_images_and_labels_by_uuids(
-            testing_uuids, os.path.join(DATASET_PATH, args.dataset_name))
-
-        evaluate_model(model, images, labels)
-
-    def classify_image_func():
-        create_predictions_table()
-
-        model = load_model_from_keras(args.model_name)
-
-        if not model:
-            raise ValueError("Failed to load the model.")
-
-        # Fetch UUIDs for testing
-        testing_uuids = get_uuids(is_training=True)
-
-        # Load images and labels for testing
-        images, _ = load_images_and_labels_by_uuids(
-            testing_uuids, os.path.join(DATASET_PATH, args.dataset_name))
-
-        # Predict labels
-        predictions = model.predict(images)
-        predicted_indices = np.argmax(predictions, axis=1)
-
-        # Retrieve label names (sorted to ensure consistent indexing)
-        label_names = sorted(
-            {row[2] for row in get_metadata_by_uuids(testing_uuids)})
-
-        print(label_names)
-
-        # Convert indices to label names
-        predicted_labels = [label_names[idx] for idx in predicted_indices]
-
-        # Store predictions in the database
-        try:
-            conn, cursor = create_connection()
-            for image_id, predicted_label in zip(testing_uuids, predicted_labels):
-                prediction_id = str(uuid.uuid4())
-                prediction_timestamp = datetime.now()
-
-                # Insert the prediction into the database
-                query = """
-                INSERT INTO image_predictions (id, image_id, predicted_label, model_name, prediction_timestamp)
-                VALUES (%s, %s, %s, %s, %s);
-                """
-                cursor.execute(
-                    query,
-                    (
-                        prediction_id,
-                        str(image_id),
-                        predicted_label,
-                        args.model_name,
-                        prediction_timestamp,
-                    ),
-                )
-            conn.commit()
-            print("Predictions stored successfully in the database.")
-        except Exception as e:
-            print(f"Error storing predictions: {e}")
-        finally:
-            conn.close()
-
     if args.mode == "download_data":
-        download_data()
+        download_data(args)
     elif args.mode == "train":
-        train_model_func()
+        train_model_func(args)
     elif args.mode == "test":
-        test_model_func()
+        test_model_func(args)
     elif args.mode == "classify":
-        classify_image_func()
+        classify_image_func(args)
     elif args.mode == "all":
-        download_data()
-        train_model_func()
-        test_model_func()
-        classify_image_func()
+        download_data(args)
+        train_model_func(args)
+        test_model_func(args)
+        classify_image_func(args)
 
 
 if __name__ == "__main__":

@@ -16,4 +16,4 @@ EXPOSE 8000
 # Run the application
 #CMD ["python", "src/main.py", "--mode", "train","--model_file_path","model/cnn_model.keras","--dataset_path","datasets/Animals"]
 #CMD ["python", "src/main.py", "--mode", "download_data","--url_training_data","https://www.kaggle.com/api/v1/datasets/download/borhanitrash/animal-image-classification-dataset","--dataset_name","Animals"]
-CMD ["python", "src/main.py", "--mode", "all", "--url_training_data", "https://www.kaggle.com/api/v1/datasets/download/borhanitrash/animal-image-classification-dataset", "--dataset_name", "Animals", "--model_name", "cnn_model", "--batch_size", "8", "--epochs", "15"]
+CMD ["python", "src/main.py", "--mode", "all", "--url_training_data", "https://www.kaggle.com/api/v1/datasets/download/borhanitrash/animal-image-classification-dataset", "--dataset_name", "Animals", "--model_name", "cnn_model", "--batch_size", "8", "--epochs", "2"]
