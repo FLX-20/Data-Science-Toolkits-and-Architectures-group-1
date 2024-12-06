@@ -70,6 +70,13 @@ All this is done in the `download_and_prepare_dataset()` function, which hands o
 - `process_and_store_files()` renames the files with their uuid and inserts their metadata into the database
 - `split_data_into_training_and_testing()` updates the boolean column `is_training`, which is by default true, based on the defined train test split, for instance, 80% training data and 20% testing data.
 
+## 4.6 Loading images from the Database
+For training the metadata and the images themselves need to be loaded again. This is achieved by the implementation of some new functions.
+The function `get_uuids(is_training=True)` returns the uuids of all training or testing images from the database based on the boolean value.
+Afterwards, these uuids can be used by `load_images_and_labels_by_uuids()` function to load the image from the docker volume and their related ground truth labels from the database.
+The subsequent training process did not change compared to the previous milestones.
+
+
 
 
 
