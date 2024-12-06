@@ -75,9 +75,20 @@ For training the metadata and the images themselves need to be loaded again. Thi
 The function `get_uuids(is_training=True)` returns the uuids of all training or testing images from the database based on the boolean value.
 Afterwards, these uuids can be used by `load_images_and_labels_by_uuids()` function to load the image from the docker volume and their related ground truth labels from the database.
 The subsequent training process did not change compared to the previous milestones.
+The same function only with different parameters where applied for testing. In this case `is_training` was set to False in the `get_uuids` function.
 
-
-
+## 4.7 Classifying images
+A part, which was newly added to this milestone is the `classify_image_func()`. This function loads the test images and uses the previously trained model to predict their labels
+and store these results in the `image_predictions ` table of the database.  
+The biggest challenge in this part was to get the actual label names because the `load_images_and_labels_by_uuids()` returns only the encoded labels for training and testing.
+This problem was solved with the following two lines of code.
+```python
+label_names = sorted({row[2] for row in get_metadata_by_uuids(testing_uuids)})
+predicted_labels = [label_names[idx] for idx in predicted_indices]
+```
+These two lines of code translate predicted labels (0,1,2) into human-readable labels (cats, dogs, snakes). First, it extracts all unique labels from the label column of the image table obtained through the `get_metadata_by_uuids()` function. These unique labels are then sorted alphabetically to create a consistent order, resulting in the label_names list.  
+In the next step, the code maps each predicted index from the predicted_indices list to its corresponding label in label_names. This mapping produces a list of predicted_labels, where each index is replaced by the appropriate human-readable label.
+Then these results can be stored in the `image_predictions` table of the database.
 
 
 
