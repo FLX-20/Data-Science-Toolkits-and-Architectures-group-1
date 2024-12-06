@@ -62,6 +62,14 @@ The queries defined in both functions are executed by the `execute_query()` to n
 The required configuration to connected to the database are defined in the file `db_config.py`, which loads the defined environment variables with [dotenv](https://pypi.org/project/python-dotenv/). Python-dotenv reads key-value pairs from a .env file and can set them as environment variables.  
 The newly introduced image_predictions table records the predictions made for various iamges, including details such as the predicted labels, the model used, and the timestamps of those predictions. In contrast, the images table contains information about individual images, including their URLs, labels, and associated dataset names. There exists a one-to-many relationship between each image in the `images` table and multiple related predictions in the `image_predictions` table. This design choice was made to allow several prediction for the same image from different models. 
 
+## 4.5 Loading Images to the Database
+Immediately after downloading and unzipping new data from the Internet its metadata is added to the database and all images are moved into one directory with the defined name of the dataset.
+All this is done in the `download_and_prepare_dataset()` function, which hands over the smaller tasks to specialized functions, such as:
+- `download_zip()` downloads and unzips the data from the provided URL
+- `extract_zip()` extracts the previously downloaded zip file
+- `process_and_store_files()` renames the files with their uuid and inserts their metadata into the database
+- `split_data_into_training_and_testing()` updates the boolean column `is_training`, which is by default true, based on the defined train test split, for instance, 80% training data and 20% testing data.
+
 
 
 
