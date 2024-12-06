@@ -55,7 +55,12 @@ In the next step, we mounted the entire current directory (.) into the container
 This might not be recommended for production, but is in the dvelopment process quite practical and saves time. 
 It is also important to ensure that this container does not start before the database, as there would be no database to connect to.
 
-
+## 4.4 Creating Database Table
+In the task it was requested to create two tables in our database. One table for the actual metadata of the images and a second table for their prediction.
+The first table is created by the function `create_table()`. The second table is created by the function `create_predictions_table()`.  
+The queries defined in both functions are executed by the `execute_query()` to not repeat our self. This function createa connection to the database and executes the given query.
+The required configuration to connected to the database are defined in the file `db_config.py`, which loads the defined environment variables with [dotenv](https://pypi.org/project/python-dotenv/). Python-dotenv reads key-value pairs from a .env file and can set them as environment variables.  
+The newly introduced image_predictions table records the predictions made for various iamges, including details such as the predicted labels, the model used, and the timestamps of those predictions. In contrast, the images table contains information about individual images, including their URLs, labels, and associated dataset names. There exists a one-to-many relationship between each image in the `images` table and multiple related predictions in the `image_predictions` table. This design choice was made to allow several prediction for the same image from different models. 
 
 
 
