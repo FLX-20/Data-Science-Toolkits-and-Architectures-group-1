@@ -4,69 +4,56 @@ from evaluate import evaluate_model
 from train import train_model
 from models import build_cnn
 from data_loader import download_and_prepare_dataset
-from app_config import DATASET_PATH
+from app_config import DATASET_PATH, URL_TRAINING_DATA, DATASET_NAME, BATCHE_SIZE, EPOCHS, MODEL_NAME
 from datetime import datetime
 import os
 import numpy as np
 import uuid
 
 
-def download_data(args):
-    if not args.url_training_data or not args.dataset_name:
-        raise ValueError(
-            "URL and dataset name are required for downloading data.")
+def download_data():
 
     create_table()
     os.makedirs(DATASET_PATH, exist_ok=True)
-    download_and_prepare_dataset(args.url_training_data, args.dataset_name)
+    download_and_prepare_dataset(URL_TRAINING_DATA, DATASET_NAME)
     print("Data downloaded and extracted successfully.")
 
 
-def train_model_func(args):
-    print("Starting training process...")
-    if not args.dataset_name:
-        raise ValueError("Dataset name is required for training mode.")
-    if not args.model_name:
-        raise ValueError("Model file path for saving the model is required.")
+def train_model_func():
 
     training_uuids = get_uuids(is_training=True)
     images, labels = load_images_and_labels_by_uuids(
-        training_uuids, os.path.join(DATASET_PATH, args.dataset_name))
+        training_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
 
     num_classes = labels.shape[1]
     input_shape = images.shape[1:]
 
     model = build_cnn(input_shape=input_shape, num_classes=num_classes)
-    train_model(model, images, labels, args.batch_size, args.epochs)
+    train_model(model, images, labels, BATCHE_SIZE, EPOCHS)
 
-    save_model(model, args.model_name)
+    save_model(model, MODEL_NAME)
     print("Model saved successfully.")
 
 
-def test_model_func(args):
-    print("Starting testing process...")
-    if not args.dataset_name:
-        raise ValueError("Dataset name is required for testing mode.")
-    if not args.model_name:
-        raise ValueError("Model file path for loading the model is required.")
+def test_model_func():
 
     testing_uuids = get_uuids(is_training=False)
-    model = load_model_from_keras(args.model_name)
+    model = load_model_from_keras(MODEL_NAME)
     images, labels = load_images_and_labels_by_uuids(
-        testing_uuids, os.path.join(DATASET_PATH, args.dataset_name))
+        testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
 
     evaluate_model(model, images, labels)
 
 
-def classify_image_func(args):
+def classify_image_func():
     create_predictions_table()
-    model = load_model_from_keras(args.model_name)
+    model = load_model_from_keras(MODEL_NAME)
     if not model:
         raise ValueError("Failed to load the model.")
 
     testing_uuids = get_uuids(is_training=True)
     images, _ = load_images_and_labels_by_uuids(
-        testing_uuids, os.path.join(DATASET_PATH, args.dataset_name))
+        testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
 
     predictions = model.predict(images)
     predicted_indices = np.argmax(predictions, axis=1)
@@ -87,7 +74,7 @@ def classify_image_func(args):
             """
             cursor.execute(
                 query, (prediction_id, str(image_id), predicted_label,
-                        args.model_name, prediction_timestamp)
+                        MODEL_NAME, prediction_timestamp)
             )
         conn.commit()
         print("Predictions stored successfully in the database.")
