@@ -2,7 +2,8 @@
 
 ## Task 1 - Setting Up Docker Compose
 
-We installed the docker-compose and got through the [tutorial] (https://docs.docker.com/compose/gettingstarted/).
+We installed the docker-compose and got through the 
+[tutorial] (https://docs.docker.com/compose/gettingstarted/).
 We followed the instructions in the tutorial, creating a new directory called `composetest`. Within that folder we 
 created the files: `app.py` `compose.yaml` `Dockerfile` `infra.yaml` `requirements.txt` and plugged that text in 
 that was needed. The commands `docker compose up` was needed to run and start the application. To control if the 
