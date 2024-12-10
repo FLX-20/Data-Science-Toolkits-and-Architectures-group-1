@@ -75,16 +75,22 @@ one common column variable.
 
 #### Types of Joins + Examples:
 1. **INNER JOIN**: Only shows matching data from both tables.
+```sql
    SELECT employees.name, departments.name
    FROM employees
    INNER JOIN departments ON employees.dept_id = departments.id;
+```
 
 2. **LEFT JOIN**: Shows everything from the first table and matches from the second table (or `null` if there’s no match).
+```sql
    SELECT employees.name, departments.name
    FROM employees
    LEFT JOIN departments ON employees.dept_id = departments.id;
+```
 
 3. **RIGHT JOIN**: Opposite of LEFT JOIN—shows all data from the second table and matches from the first table.
+```sql
    SELECT employees.name, departments.name
    FROM employees
    RIGHT JOIN departments ON employees.dept_id = departments.id;
+```
