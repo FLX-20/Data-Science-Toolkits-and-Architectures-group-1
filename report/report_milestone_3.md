@@ -3,7 +3,15 @@
 ## Task 1 - Setting Up Docker Compose
 
 We installed the docker-compose and got through the [tutorial] (https://docs.docker.com/compose/gettingstarted/).
-We followed the instructions in the tutorial, creating a new directory called `composetest`. Within that folder we created the files: `app.py` `compose.yaml` `Dockerfile` `infra.yaml` `requirements.txt` and plugged that text in that was needed. The commands `docker compose up` was needed to run and start the application. To control if the application was running we entered `http://localhost:8000/` which gave 'Page not Found' so we tried `http://127.0.0.1:8000`. The second command gave the result: `Hello World! I have been seen 1 times.`, when refreshing the page the 1 changed into 2. This was no surpise because we wrote `return f'Hello from Docker! I have been seen {count} times.\n'` in the app.py file. When we completed step 8 we used the command `docker compose stop` to bring everything down and remove all the containers, ending the tutorial.
+We followed the instructions in the tutorial, creating a new directory called `composetest`. Within that folder we 
+created the files: `app.py` `compose.yaml` `Dockerfile` `infra.yaml` `requirements.txt` and plugged that text in 
+that was needed. The commands `docker compose up` was needed to run and start the application. To control if the 
+application was running we entered `http://localhost:8000/`. This command gave the result: `Hello World! I have 
+been seen 1 times.`, when refreshing the page the 1 changed into 2 The second command gave the result: `Hello 
+World! I have been seen 1 times.`, when refreshing the page the 1 changed into 2. This was no surpise because we 
+wrote `return f'Hello from Docker! I have been seen {count} times.\n'` in the app.py file. When we completed step 8 
+we used the command `docker compose stop` to bring everything down and remove all the containers, ending the 
+tutorial.
 
 
 ### 1.1 Services used for application and how they relate to host names in computer networks
