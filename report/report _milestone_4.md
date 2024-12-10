@@ -46,15 +46,12 @@ The confusion matrix is useful because it lets you calculate all sorts of metric
 and gives you a clearer picture of where your model is messing up. 
 Therefore, the confusion matrix can be used to measure precision and recall.
 Precision is calculated through: 
-\[
-\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}
-\]
+`Precision = TP / (TP + FP)`
 This shows how often the model's positive predictions are correct.
 Recall can be calculated through: 
-\[
-\text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}
-\]
+`Recall = TP / (TP + FN)`
 This shows how many actual positives the model manages to find.
+
 	
 
 
