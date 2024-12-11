@@ -158,6 +158,7 @@ We also defined environment variables for the application container (DB_NAME, DB
 In the next step, we mounted the entire current directory (.) into the container at `/app`, allowing code changes to be reflected without rebuilding the image.
 This might not be recommended for production, but is in the dvelopment process quite practical and saves time. 
 It is also important to ensure that this container does not start before the database, as there would be no database to connect to.
+## Little project riddles (optional)
 
 ## 4.4 Creating Database Table
 In the task it was requested to create two tables in our database. One table for the actual metadata of the images and a second table for their prediction.
@@ -165,6 +166,10 @@ The first table is created by the function `create_table()`. The second table is
 The queries defined in both functions are executed by the `execute_query()` to not repeat our self. This function createa connection to the database and executes the given query.
 The required configuration to connected to the database are defined in the file `db_config.py`, which loads the defined environment variables with [dotenv](https://pypi.org/project/python-dotenv/). Python-dotenv reads key-value pairs from a .env file and can set them as environment variables.  
 The newly introduced image_predictions table records the predictions made for various iamges, including details such as the predicted labels, the model used, and the timestamps of those predictions. In contrast, the images table contains information about individual images, including their URLs, labels, and associated dataset names. There exists a one-to-many relationship between each image in the `images` table and multiple related predictions in the `image_predictions` table. This design choice was made to allow several prediction for the same image from different models. 
+### 1. SQL Injection Attack
+An SQL Injection attack happens when hackers trick your website into running harmful code in the database by typing 
+unexpected inputs, like special characters or commands, into fields like login forms. This could let them steal 
+data, bypass login, or even delete important information.
 
 ## 4.5 Loading Images to the Database
 Immediately after downloading and unzipping new data from the Internet its metadata is added to the database and all images are moved into one directory with the defined name of the dataset.
@@ -173,6 +178,8 @@ All this is done in the `download_and_prepare_dataset()` function, which hands o
 - `extract_zip()` extracts the previously downloaded zip file
 - `process_and_store_files()` renames the files with their uuid and inserts their metadata into the database
 - `split_data_into_training_and_testing()` updates the boolean column `is_training`, which is by default true, based on the defined train test split, for instance, 80% training data and 20% testing data.
+#### An example of a SQL Injection Attack:
+SELECT * FROM users WHERE username = 'user' AND password = 'pass';
 
 ## 4.6 Loading images from the Database
 For training the metadata and the images themselves need to be loaded again. This is achieved by the implementation of some new functions.
@@ -180,6 +187,8 @@ The function `get_uuids(is_training=True)` returns the uuids of all training or 
 Afterwards, these uuids can be used by `load_images_and_labels_by_uuids()` function to load the image from the docker volume and their related ground truth labels from the database.
 The subsequent training process did not change compared to the previous milestones.
 The same function only with different parameters where applied for testing. In this case `is_training` was set to False in the `get_uuids` function.
+If a hacker enters `user' OR '1'='1` as the username, the query becomes:
+SELECT * FROM users WHERE username = 'user' OR '1'='1';
 
 ## 4.7 Classifying images
 A part, which was newly added to this milestone is the `classify_image_func()`. This function loads the test images and uses the previously trained model to predict their labels
@@ -193,6 +202,50 @@ predicted_labels = [label_names[idx] for idx in predicted_indices]
 These two lines of code translate predicted labels (0,1,2) into human-readable labels (cats, dogs, snakes). First, it extracts all unique labels from the label column of the image table obtained through the `get_metadata_by_uuids()` function. These unique labels are then sorted alphabetically to create a consistent order, resulting in the label_names list.  
 In the next step, the code maps each predicted index from the predicted_indices list to its corresponding label in label_names. This mapping produces a list of predicted_labels, where each index is replaced by the appropriate human-readable label.
 Then these results can be stored in the `image_predictions` table of the database.
+This always returns true, letting them log in without the right password.
+
+#### How to protect yourself against a SQL Injection Attack
+1. Use Safe Query Methods:
+   cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (user, password))
+2. Check Inputs: Make sure inputs only allow expected characters (e.g., no `--` or `'`).
+3. Restrict Database Access: The website’s database account should only have limited permissions.
+4. Test for Vulnerabilities: Regularly check for weaknesses using tools like SQLmap.
 
 
 
+### 2. Difference Between Relational Database (RD) and a Document Store (DS)
+
+#### Relational Database:
+Relational Database stores data in `tables` with rows and columns, like a spreadsheet. It has a fixed structure, so the data must fit a specific format (e.g., numbers, dates). Examples of RD are MySQL or PostgreSQL.
+
+#### Document Store:
+Document store stores data as `documents`, like JSON files. Each document can look different. It is very 
+flexible, so you do not need a strict structure. This is great for unstructured or changing data. Examples of DS are MongoDB or CouchDB.
+
+#### 2.1 Scenarios Where You Should Use Relational Database:
+You should use RD when data is highly structured, and relationships matter, like in finance, 
+healthcare, or HR systems where you need consistency and complex queries.
+
+#### 2.2 Scenarios Where You Should Use Document Store:
+You should use DS when data is less structured or needs flexibility, such as handling product catalogs, 
+user profiles, or social media posts where schema might change frequently.
+
+### 3. SQL Join Operation
+A SQL Join combines data from two or more tables when they have a common link. Same as merging two datasets with
+one common column variable. 
+
+#### Types of Joins + Examples:
+1. **INNER JOIN**: Only shows matching data from both tables.
+   SELECT employees.name, departments.name
+   FROM employees
+   INNER JOIN departments ON employees.dept_id = departments.id;
+
+2. **LEFT JOIN**: Shows everything from the first table and matches from the second table (or `null` if there’s no match).
+   SELECT employees.name, departments.name
+   FROM employees
+   LEFT JOIN departments ON employees.dept_id = departments.id;
+
+3. **RIGHT JOIN**: Opposite of LEFT JOIN—shows all data from the second table and matches from the first table.
+   SELECT employees.name, departments.name
+   FROM employees
+   RIGHT JOIN departments ON employees.dept_id = departments.id;
