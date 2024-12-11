@@ -4,11 +4,14 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . /app
 
-# Copy application source code
-COPY src/ ./src/
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir --default-timeout=100000 tensorflow==2.18.0
+RUN pip install --no-cache-dir --default-timeout=100000 -r requirements.txt
 
-# Default command
-ENTRYPOINT ["python", "src/main.py"]
+# Expose the application port
+EXPOSE 8000
+
+# Run the application
+CMD ["python", "src/main.py", "--mode", "all"]
