@@ -138,7 +138,7 @@ def load_dataset(dataset_name, is_training=True, img_height=180, img_width=180):
 
         images, labels = [], []
         for image_id, label in rows:
-            # Construct the image file path directly from the unique image_id
+
             img_path = os.path.join(data_path, f"{image_id}.jpg")
 
             if not os.path.exists(img_path):
