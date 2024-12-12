@@ -9,6 +9,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      WANDB_API_KEY: ${WANDB_API_KEY}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -44,6 +45,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_HOST: db
       DB_PORT: 5432
+      WANDB_API_KEY: ${WANDB_API_KEY}
     volumes:
       - .:/app
     ports:

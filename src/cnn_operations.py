@@ -9,6 +9,11 @@ from datetime import datetime
 import os
 import numpy as np
 import uuid
+import json
+import tensorflow as tf
+import wandb
+from wandb.integration.keras import WandbMetricsLogger
+from models import build_model_wandb
 
 
 def download_data():
@@ -46,6 +51,7 @@ def test_model_func():
 
 
 def classify_image_func():
+
     create_predictions_table()
     model = load_model_from_keras(MODEL_NAME)
     if not model:
@@ -82,3 +88,59 @@ def classify_image_func():
         print(f"Error storing predictions: {e}")
     finally:
         conn.close()
+
+
+def train_model_wandb():
+
+    training_uuids = get_uuids(is_training=True)
+    testing_uuids = get_uuids(is_training=False)
+
+    images, labels = load_images_and_labels_by_uuids(
+        training_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
+    test_images, test_labels = load_images_and_labels_by_uuids(
+        testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
+
+    wandb_taining(images, labels, test_images, test_labels)
+
+
+def wandb_taining(x_train, y_train, x_test, y_test):
+
+    with open("architecutres/architectures.json", "r") as file:
+        architectures = json.load(file)
+
+    for arch in architectures:
+        print(f"Training model: {arch['name']}")
+        print(arch)
+
+        wandb.init(project="cnn-training", name=arch['name'], config=arch)
+        config = wandb.config
+        print(config)
+
+        model = build_model_wandb(
+            config, input_shape=x_train.shape, num_classes=y_train.shape[1])
+
+        optimizer = tf.keras.optimizers.Adam(learning_rate=config.learning_rate) \
+            if config.optimizer == "adam" else tf.keras.optimizers.SGD(learning_rate=config.learning_rate)
+        model.compile(optimizer=optimizer,
+                      loss="categorical_crossentropy", metrics=['accuracy'])
+
+        history = model.fit(
+            x_train, y_train,
+            epochs=config.epochs,
+            batch_size=config.batch_size,
+            validation_data=(x_test, y_test),
+            callbacks=[WandbMetricsLogger()]
+        )
+
+        loss, accuracy = model.evaluate(x_test, y_test)
+        print(f"Model: {arch['name']} - Loss: {loss}, Accuracy: {accuracy}")
+
+        directory = os.path.dirname(f"MODEL_SAVE_PATH/{arch['name']}_model.h5")
+
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        model_path = f"MODEL_SAVE_PATH/{arch['name']}_model.h5"
+        model.save(model_path)
+        wandb.save(model_path)
+        wandb.finish()

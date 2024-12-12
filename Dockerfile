@@ -13,5 +13,5 @@ RUN pip install --no-cache-dir --default-timeout=100000 -r requirements.txt
 # Expose the application port
 EXPOSE 8000
 
-# Run the application
-CMD ["python", "src/main.py", "--mode", "all"]
+# Set the entrypoint script
+ENTRYPOINT ["sh", "scripts/entrypoint.sh"]

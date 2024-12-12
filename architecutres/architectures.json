@@ -1,0 +1,44 @@
+[
+    {
+        "name": "cnn_small",
+        "conv_layers": 2,
+        "conv_filters": [16, 32],
+        "kernel_sizes": [[4, 4], [3, 3]],
+        "pool_sizes": [[3, 3], [2, 2]],
+        "dropout_rate": 0.2,
+        "fc_layers": 1,
+        "fc_neurons": [128],
+        "epochs": 20,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "optimizer": "adam"
+    },
+    {
+        "name": "cnn_medium",
+        "conv_layers": 3,
+        "conv_filters": [32, 64, 128],
+        "kernel_sizes": [[5, 5], [3, 3], [3, 3]],
+        "pool_sizes": [[2, 2], [2, 2], [2, 2]],
+        "dropout_rate": 0.3,
+        "fc_layers": 2,
+        "fc_neurons": [128, 64],
+        "epochs": 20,
+        "batch_size": 32,
+        "learning_rate": 0.0005,
+        "optimizer": "adam"
+    },
+    {
+        "name": "cnn_large",
+        "conv_layers": 4,
+        "conv_filters": [64, 128, 256, 512],
+        "kernel_sizes": [[5, 5], [3, 3], [3, 3], [3, 3]],
+        "pool_sizes": [[2, 2], [2, 2], [2, 2], [1, 1]],
+        "dropout_rate": 0.4,
+        "fc_layers": 2,
+        "fc_neurons": [256, 128],
+        "epochs": 40,
+        "batch_size": 64,
+        "learning_rate": 0.0001,
+        "optimizer": "adam"
+    }
+]
