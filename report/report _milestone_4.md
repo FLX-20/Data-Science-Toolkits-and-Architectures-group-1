@@ -66,10 +66,21 @@ This shows how many actual positives the model manages to find.
 After a `Weights and Biases` account had been created, the existing codebase was instrumented with `Weights and Biases` features.  This was achieved by adding a new operational mode, besides, `download_data`, `train`, `test` and `all`. This mode is `wandb_run`, which builds several models defined in a JSON file and transmits the results to the Weights and Biases server. In this way, one can evaluate the models in the related web-application.
 
 ## 2.1 Login to W&B
-The API key is used to log in to `W&B`. This key is saved in the `.env` file, which is stored only locally on the host machine and is not shared on the remote GitHub repo. Hence, if you want to run the code, you have to enter your own `W&B` key to access the results in the web application.
+The API key is used to log in to `W&B`. This key is saved in the `.env` file, which is stored only locally on the host machine and is not shared on the remote GitHub repo. Hence, if you want to run the code, you have to enter your own `W&B` key to access the results in the web application.  
 The API-key is added as a environment varaible of the docker container by adding it to the `environment` section of the docker-compose file. Docker-compose reads in automattically all required variables form the `.env`-file and adds them as environement variables in the `app` container.
 
-
+## 2.2 Model Training
+Before the model can be trained the CNN architecture has to be loaded from the regarding JSON file.  
+This code architecture, incorporating the reading from a JSON, was chosen to run several CNN model tests in a sequence. Because the code is not hard coded, it will be easier in the future to try out different hyperparameter combinations of CNNs, making it easier to find an appropriate model.  
+Before the model can be trained the cnn arichtecture have to be loaded from the regarding json file.
+This code architcture incoperating the reading from a json-file was choosen to run several cnn models test in a sequence, which will make it easier in the future to try out different hyperparameter combinations, because the code is not hard coded.
+After the model was build with the `build_model_wandb` function it is trained in the subseqent step.
+Normally one wourd you the [Adam](https://arxiv.org/abs/1412.6980) (Adaptive Momentum Estimation) optimizer for updating the weights in the neural network. But Stochastic Gradient Descent was also added as an option. However, it is not assumed that SGD adds better results, because Adam-optimized is an improved version of SGD, which also combines momentum optimization and RMSP (Root Mean Squared Propagation) to achieve better convergence. Momentum helps accelerate gradients in the right direction by averaging past gradients, while RMSProp adjusts the learning rate for each parameter based on a running average of recent gradient magnitudes, preventing oscillations.  
+Nowadays, the Adam optimizer is used in most of the papers, because it achieves so far the best results in many situations. From my own experience, it can be said, that the optimizer does seem to have a tremendous influence. Larger performance boosts can be achieved with other hyperparameters. 
+The used loss function is `sparse_categorical_crossentropy`, which requires the true labels be represented as integer values rather than one-hot encoded. 
+It is also important to mention that there is also the `categorical_crossentropy` loss function, which does exactly the same but requires the labels to be one-hot-encode, which is not the case in the current codebase. In the beginning, we didn't know the difference and accidentally used the wrong `categorical_crossentropy` loss function. The mistake was noticed quite late because the code still runs. But due to the wrong encode the accuracy does not increase no matter how hard you try to change the hyperparameters.  
+There are also plenty of other loss functions in the realm of data science and neural networks, such as Kullback-Leibler Divergence, common for variational autoencoders (VAEs) to measure the difference between the approximate posterior distribution and the true prior distribution or the hinge loss in conjunction with SVM. 
+In our case, `categorical_crossentropy` is the most common choice for multiclassification neural networks. Neural networks that only distinguish between two classes would use `binary cross-entropy` loss, which can be regarded as a simpler form of `categorical_crossentropy` loss.
 
 ## Task 3 - Data analysis in Jupyter Notebook 
 
