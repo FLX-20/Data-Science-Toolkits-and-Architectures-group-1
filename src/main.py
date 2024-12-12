@@ -2,6 +2,8 @@ from cnn_operations import download_data, train_model_func, test_model_func, cla
 from app_config import DATASET_PATH
 import argparse
 
+# dev for milestone 4
+
 
 def main():
     parser = argparse.ArgumentParser(
