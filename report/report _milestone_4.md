@@ -91,6 +91,11 @@ The defined kernel sizes and pooling sizes are chosen by good feel and common CN
 Hence, it was just tried out how different network sizes affect the final model performance.  
 For the final project, it seems to be important to define more models and do this analysis more systematically. All information about all hyperparameters can be found in this [online book](https://d2l.ai/chapter_convolutional-neural-networks/index.html).
 
+## 2.4 Model Evaluation
+The selected evaluation metric, which we have choosen is accuracy. The reason for this is that we have at the moment a balanced dataset with a equal number of cat, dog and snake images.  
+Moreover the false postive or flase negative are equally bad, because both types of errors result in misclassification of animals, which defeats the main purpose of our model of predicting all anaimal types correctly.  
+For instance, a false positive where a dog is classified as a cat, or a false negative where a snake is classified as not a snake, carries the same affect for us in terms of model performance degradation.  
+Thus, the use of accuracy as the evaluation metric aims to measure the overall effectiveness of the model in correctly identifying each class without introducing bias toward any particular category.
 
 ## Task 3 - Data analysis in Jupyter Notebook 
 
