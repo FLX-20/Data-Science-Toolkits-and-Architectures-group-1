@@ -82,6 +82,16 @@ It is also important to mention that there is also the `categorical_crossentropy
 There are also plenty of other loss functions in the realm of data science and neural networks, such as Kullback-Leibler Divergence, common for variational autoencoders (VAEs) to measure the difference between the approximate posterior distribution and the true prior distribution or the hinge loss in conjunction with SVM. 
 In our case, `categorical_crossentropy` is the most common choice for multiclassification neural networks. Neural networks that only distinguish between two classes would use `binary cross-entropy` loss, which can be regarded as a simpler form of `categorical_crossentropy` loss.
 
+## 2.3 CNN Architectures
+As already mentioned, three different CNN architecture types were tested in this milestone. The main difference between these architectures lies in their size.
+Starting with the smallest CNN architecture, which only has 2 convolutional layers and one fully connected layer at the end. The subsequent medium CNN has one convolutional layer more and two fully connected layers at the end instead of only one. In the end, the large CNN consists of four convolutional layers and two fully connected layers to avoid unnecessary complexity. 
+Thus, each new model scales up in complexity by deeper layers, higher filter counts and additional fully connected layers to capture the patterns in the Data. However, the larger the network, the more important regularization, becomes to avoid overfitting to the training data and generalising poorly on new, unseen data. 
+This is achieved by dropout, which removes a certain portion of the neuron connections while training, making the network less dependent on single neurons.
+The defined kernel sizes and pooling sizes are chosen by good feel and common CNN architecture definitions because the task did not ask to find the optimal hyperparameters because this action is very time-consuming and resource-intensive.
+Hence, it was just tried out how different network sizes affect the final model performance.  
+For the final project, it seems to be important to define more models and do this analysis more systematically. All information about all hyperparameters can be found in this [online book](https://d2l.ai/chapter_convolutional-neural-networks/index.html).
+
+
 ## Task 3 - Data analysis in Jupyter Notebook 
 
 
