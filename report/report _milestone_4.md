@@ -1,60 +1,71 @@
 # Milestone 4
 
 ## Task 1 - Evaluation Metrics and Weights and Biases
-First we all made an account at Weights and Biases [website] (https://www.wandb.com/).
-Afterwards we completed the tutorial on [GoogleColab] (https://colab.research.google.com/drive/1pMcNYctQpRoBKD5Z0iXeFWQD8hIDgzCV)
+First, we all made an account at Weights and Biases [website] (https://www.wandb.com/).
+Afterwards, we completed the tutorial on [GoogleColab] (https://colab.research.google.com/drive/1pMcNYctQpRoBKD5Z0iXeFWQD8hIDgzCV)
 
 ### 1.1 Experiment Management and its importance
-Experiment management is all about keeping track of everything you try while building machine learning models - 
-things like the data you use, the model settings, the code version, and how well each experiment is performed.
-The importance of experiment management is to make it easier to reproduce results, save time, helping teammates
-to make clear what is been done, and it lets you analyze what worked and what did not.
+Experiment management is the act of systematically tracking and documenting the learning and progress of your experiments.
+It allows you (the researcher) and others to understand what has been done, what results it has produced or is producing,
+and to trace exactly where changes have been made and what the consequences are. This ensures reproducibility and robustness
+by tracking code versions and the respective datasets used. It also allows comparison and collaboration between teams and 
+experiments, since every step or design choice can be examined in detail (by any member who has access to the experiment management database).
 
 ### 1.2 Metric in ML
-In ML, a metric is just a way to measure how well your model is doing. For example
-if you work on classification, you might look at metrics like accuracy or precision.
-If you are predicint numbers, you might use something like mean squared errors.
-Metrics are super important because they tell you if your model is actually solving the problem or not.
+Metrics are key figures or parameters that can be measured and interpreted. They allow us to quantify impact,
+so we can judge not only how absolutely good or bad a metric is at any given time, but also in which direction 
+it is trending. In other words, metrics allow us to identify and evaluate trends over time.
+
+In the context of machine learning, metrics are particularly important because they provide a way to evaluate
+the performance of the models being used. For example, certain metrics can show how many instances have been
+correctly identified out of the total number of observations - this is known as the 'accuracy' metric. 
+Similar metrics, which will be explored in more detail in the next step, help to provide a more comprehensive understanding of model performance.
 
 ### 1.3 Precision and Recall, the trade-off between the two
+Precision and recall are probably the most common and popular metrics used in machine learning. 
+While Precision focuses on how often we get it right when predicting something to be positive, 
+Recall focuses on how often we correctly identify positives out of all the actual positive instances
+(so even when we, incorrectly, predict something to be negative).
 Precision is about how many times your positive predictions are correct. 
-For example, if your model says that 10 emails are spam while actually 8 of them are spam, 
-then you have a 80% precision.
+For example, if your model says that 10 emails are spam while 8 of them are spam, 
+then you have an 80% precision.
 Recall is about how many of the actual positive cases your model found. If there were
 20 spam emails and your model only flagged 8, your recall is 40%.
-The trade-off between the two terms happens often because focusing on one can hurt the other.
-If you only mark emails as spam you are 100% sure that you miss a lot of spam. On the other hand, 
-if you try to catch all the spam, you might flag some valid emails by mistake.
-The right to balance depends on what is more important in your situation.
-For example, in detecting diseases, recall is more important because you do not want to miss any cases.
-But in spam detection, precision matter more, therefore you do not mark any important emails as spam.
+The trade-off between them arises because increasing Precision often decreases Recall and vice versa - like a seesaw,
+as one side or metric goes up, the other tends to go down. For example, if a model is designed to prioritise Precision,
+it will only predict something as positive only if it's very confident to be right, this will lead to potentially 
+missing some real positives (lower Recall). On the other hand, if the model prioritises Recall,
+it may predict more positives overall, leading to more false positives and therefore lower Precision.
+In the example of cancer diagnostics: Trading off Precision, how often we actually, correctly, 
+predict a patient to have cancer, will lead to some patients with cancer not being flagged. 
+On the other hand, prioritizing Recall ensures that nearly all patients with cancer are flagged, 
+but this may result in a higher number of false positives.
+
 
 ### 1.4 AUROC Metric
-AUROC stands for Area Under the Receiver Operating Characteristic Curve.
-It is basically a way to measure how good your model is at distinguishing between two classes, for example spam or no spam.
-The ROC (Receiver Operating Characteristic Curve) itself shows how well the model balances true positives
-and false positives at different thresholds. The AUROC is just the area under that curve. A perfect model gets an AUROC of 1. 
-A useless model gets 0.5, which in other words mean that you also could guess.
-The AUROC metric is great because it works no matter what threshold you pick and gives you a single score to compare models.
-
+The AUROC metric, which stands for “Area Under the Receiver Operating Characteristic Curve", 
+quantifies how good a model is at classification tasks, between two classes. Thus allowing to quickly assess the false
+positive rate that is associated with a true positive rate. The formula plots Recall against the so called “False Positive Rate” 
+at the varying classification thresholds set. Like this, AUROC as a metric gives insight into how well the respective model(s) 
+are at classifying the data points at hand. As in regression, a higher value is generally indicating a better fit,
+with 1.0 examplifying a perfect distinction of all data classes. What makes AUROC so useful is in areas where data sets tend
+to be skewed toward 1 data class that is outweighing all others - here accuracy could be high, even if the model only ever 
+predicted that specific class, due to its prevalence - but AUROC allows all class separations to be taken into account and 
+thus gives a more differentiated perspective.
 
 ### 1.5 Confusion Matrix
 A confusion matrix is a table that breaks down how well your model did in a classification problem. The table shows
-True Positives (TP), True Negatives (TN), False Postives (FP), and False Negatives (FN)
-TP is when the model correctly predicts something postive. TN is when the model correctly predicts something as negative. 
+True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN)
+TP is when the model correctly predicts something positive. TN is when the model correctly predicts something as negative. 
 FP is when the model says something is positive, while it is not. FN is when the model misses a positive case. 
 The confusion matrix is useful because it lets you calculate all sorts of metrics like precision, recall, accuracy,
 and gives you a clearer picture of where your model is messing up. 
 Therefore, the confusion matrix can be used to measure precision and recall.
 Precision is calculated through: 
-\[
-\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}
-\]
+`Precision = TP / (TP + FP)`
 This shows how often the model's positive predictions are correct.
 Recall can be calculated through: 
-\[
-\text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}
-\]
+`Recall = TP / (TP + FN)`
 This shows how many actual positives the model manages to find.
 
 
@@ -65,11 +76,11 @@ This shows how many actual positives the model manages to find.
 
 After a `Weights and Biases` account had been created, the existing codebase was instrumented with `Weights and Biases` features.  This was achieved by adding a new operational mode, besides, `download_data`, `train`, `test` and `all`. This mode is `wandb_run`, which builds several models defined in a JSON file and transmits the results to the Weights and Biases server. In this way, one can evaluate the models in the related web-application.
 
-## 2.1 Login to W&B
+### 2.1 Login to W&B
 The API key is used to log in to `W&B`. This key is saved in the `.env` file, which is stored only locally on the host machine and is not shared on the remote GitHub repo. Hence, if you want to run the code, you have to enter your own `W&B` key to access the results in the web application.  
 The API-key is added as a environment varaible of the docker container by adding it to the `environment` section of the docker-compose file. Docker-compose reads in automattically all required variables form the `.env`-file and adds them as environement variables in the `app` container.
 
-## 2.2 Model Training
+### 2.2 Model Training
 Before the model can be trained the CNN architecture has to be loaded from the regarding JSON file.  
 This code architecture, incorporating the reading from a JSON, was chosen to run several CNN model tests in a sequence. Because the code is not hard coded, it will be easier in the future to try out different hyperparameter combinations of CNNs, making it easier to find an appropriate model.  
 Before the model can be trained the cnn arichtecture have to be loaded from the regarding json file.
@@ -82,7 +93,7 @@ It is also important to mention that there is also the `sparse_categorical_cross
 There are also plenty of other loss functions in the realm of data science and neural networks, such as Kullback-Leibler Divergence, common for variational autoencoders (VAEs) to measure the difference between the approximate posterior distribution and the true prior distribution or the hinge loss in conjunction with SVM. 
 In our case, `categorical_crossentropy` is the most common choice for multiclassification neural networks. Neural networks that only distinguish between two classes would use `binary cross-entropy` loss, which can be regarded as a simpler form of `categorical_crossentropy` loss.
 
-## 2.3 CNN Architectures
+### 2.3 CNN Architectures
 As already mentioned, three different CNN architecture types were tested in this milestone. The main difference between these architectures lies in their size.
 Starting with the smallest CNN architecture, which only has 2 convolutional layers and one fully connected layer at the end. The subsequent medium CNN has one convolutional layer more and two fully connected layers at the end instead of only one. In the end, the large CNN consists of four convolutional layers and two fully connected layers to avoid unnecessary complexity. 
 Thus, each new model scales up in complexity by deeper layers, higher filter counts and additional fully connected layers to capture the patterns in the Data. However, the larger the network, the more important regularization, becomes to avoid overfitting to the training data and generalising poorly on new, unseen data. 
@@ -91,7 +102,7 @@ The defined kernel sizes and pooling sizes are chosen by good feel and common CN
 Hence, it was just tried out how different network sizes affect the final model performance.  
 For the final project, it seems to be important to define more models and do this analysis more systematically. All information about all hyperparameters can be found in this [online book](https://d2l.ai/chapter_convolutional-neural-networks/index.html).
 
-## 2.4 Model Evaluation
+### 2.4 Model Evaluation
 The selected evaluation metric, which we have choosen is accuracy. The reason for this is that we have at the moment a balanced dataset with a equal number of cat, dog and snake images.  
 Moreover the false postive or flase negative are equally bad, because both types of errors result in misclassification of animals, which defeats the main purpose of our model of predicting all anaimal types correctly.  
 For instance, a false positive where a dog is classified as a cat, or a false negative where a snake is classified as not a snake, carries the same affect for us in terms of model performance degradation.  
