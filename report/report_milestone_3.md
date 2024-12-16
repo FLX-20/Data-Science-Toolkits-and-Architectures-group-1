@@ -69,7 +69,7 @@ The final Python application is divided into three files.
 2) `joke_opertation.py` includes all operations related to the joke database, such as creating a table (`create_joke_table()`), adding a joke (`add_joke()`), deleting a joke from the database table (`delete_joke()`), fetching all jokes (`get_all_jokes()`) or modify a joke by its id (`get_all_jokes()`). Furthermore, a function was added, which gets n jokes from the `jokes-package and returns them in a list.
 3) `main.py` executes these functions in an example sequence, consisting of the creation of the table, writing two jokes to the table, modifying the last joke and deleting the first one.
 
-### 2.4 tackled issues
+### 2.4 Tackled Issues
 Some time the first connection attempt of the app-container with the database failed. For this reason a for loop was implemented, which tries to connect to the datbase 5 times with a short delay between every attempt. If all five attempts fail. it is real not possible to establish a connection.
 
 ### 2.5 Stopping Containers 
@@ -237,11 +237,14 @@ An SQL Injection attack happens when hackers trick your website into running har
 unexpected inputs, like special characters or commands, into fields like login forms. This could let them steal 
 data, bypass login, or even delete important information.
 
-#### An example of a SQL Injection Attack:
+**An example of a SQL Injection Attack:**  
+```SQL
 SELECT * FROM users WHERE username = 'user' AND password = 'pass';
-
+```
 If a hacker enters `user' OR '1'='1` as the username, the query becomes:
+```SQL
 SELECT * FROM users WHERE username = 'user' OR '1'='1';
+```
 
 This always returns true, letting them log in without the right password.
 
@@ -254,18 +257,18 @@ This always returns true, letting them log in without the right password.
 
 ### 2. Difference Between Relational Database (RD) and a Document Store (DS)
 
-#### Relational Database:
+**Relational Database:**   
 Relational Database stores data in `tables` with rows and columns, like a spreadsheet. It has a fixed structure, so the data must fit a specific format (e.g., numbers, dates). Examples of RD are MySQL or PostgreSQL.
 
-#### Document Store:
+**Document Store:**  
 Document store stores data as `documents`, like JSON files. Each document can look different. It is very 
 flexible, so you do not need a strict structure. This is great for unstructured or changing data. Examples of DS are MongoDB or CouchDB.
 
-#### 2.1 Scenarios Where You Should Use Relational Database:
+**Scenarios Where You Should Use Relational Database:**  
 You should use RD when data is highly structured, and relationships matter, like in finance, 
 healthcare, or HR systems where you need consistency and complex queries.
 
-#### 2.2 Scenarios Where You Should Use Document Store:
+**Scenarios Where You Should Use Document Store:**  
 You should use DS when data is less structured or needs flexibility, such as handling product catalogs, 
 user profiles, or social media posts where schema might change frequently.
 
@@ -273,7 +276,7 @@ user profiles, or social media posts where schema might change frequently.
 A SQL Join combines data from two or more tables when they have a common link. Same as merging two datasets with
 one common column variable. 
 
-#### Types of Joins + Examples:
+**Types of Joins + Examples:**  
 1. **INNER JOIN**: Only shows matching data from both tables.
 ```sql
    SELECT employees.name, departments.name
