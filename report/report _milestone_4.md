@@ -109,8 +109,33 @@ For instance, a false positive where a dog is classified as a cat, or a false ne
 Thus, the use of accuracy as the evaluation metric aims to measure the overall effectiveness of the model in correctly identifying each class without introducing bias toward any particular category.
 
 ## Task 3 - Data analysis in Jupyter Notebook 
+First we needed to check if Jupyter Notebook was installed in our VS code. We used `jupyter notebook --version` and 
+got `7.3.1` as answer. Then we could start making the exercises.
 
+### Loading data from Numpy Array with dimensions where channels is 3 in an RGB image
+The dataset analysis began with loading image data into Numpy arrays. A Python function was implemented to download 
+images from given URLs using the requests library and the PIL module. The downloaded images were then converted 
+into Numpy arrays. Each Numpy array had the shape (width, height, channels), with the channels dimension equal to 
+3, representing the RGB color channels (Red, Green, and Blue).
+The images were organized into three classes: dogs, cats, and snakes. For each class, the number of images and the 
+shape of the first image were printed to confirm successful loading. This step ensures the dataset structure is 
+intact and provides preliminary insights into the image dimensions.
 
+### Analyze data with Numpy
+Basic statistics about the dataset were calculated, such as the number of images per class and their dimensions. 
+The uniformity of image dimensions across the dataset was verified to ensure compatibility with subsequent analysis.
+To get a visual understanding of the dataset, a 3x3 grid of random images from each class was displayed using 
+Matplotlib. This allowed an intuitive inspection of image quality and content, helping to confirm that the data was 
+loaded correctly.
+For each class, histograms of pixel intensities were created for the Red, Green, and Blue channels. This analysis 
+revealed differences in color distributions between the classes, offering a basis for distinguishing them.
+The RGB images were converted to the HSL (Hue, Saturation, Lightness) color space using the PIL library. Histograms 
+for the Hue, Saturation, and Lightness channels were plotted. The HSL analysis provided an alternative perspective 
+on color characteristics, aiding in understanding class-specific features.
+To explore patterns and relationships in the dataset, dimensionality reduction was applied using PCA (Principal 
+Component Analysis). Each image was flattened into a 1D array, and the PCA algorithm reduced the dataset to two 
+dimensions. A scatter plot was created to visualize the classes in 2D space, revealing clusters and overlaps 
+between the classes. This step helped uncover separability and shared characteristics across the dataset.
 
 
 
