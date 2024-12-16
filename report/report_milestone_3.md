@@ -35,6 +35,7 @@ Because we didn't want to mix two independent projects (the joke exercise and th
 ```shell
 git clone https://github.com/igilan80/Data-Science-Toolkits-and-Architectures-group-1-joke-databse.git
 ```
+In this repo, a tag and a release for milestone_3 were create, like in the origanl repo.
 
 ### 2.1 What is PostgreSQL? SQL or NoSQL
 It is a RDBMS which is short for relational database management system - it uses SQL, which is short for structured query language to access, define and manipulate data. Furthermore the ACID structure, referring to the data points being Atomic, Consistent, Isolated and Durable is another sign for the SQL nature of PosegreSQL. As such it is SQL as the data is stored in a structured way in tables with rows and columns and Primary as well as Foreign Keys are utilized.

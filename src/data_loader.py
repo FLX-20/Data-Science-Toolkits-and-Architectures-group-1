@@ -128,7 +128,7 @@ def load_dataset(dataset_name, is_training=True, img_height=180, img_width=180):
     if not os.path.exists(data_path):
         raise ValueError(f"Invalid directory: {data_path}")
 
-    query = "SELECT id, label FROM images WHERE is_training = %s;"
+    query = "SELECT id, label FROM input_data WHERE is_training = %s;"
     try:
         conn, cursor = create_connection()
         cursor.execute(query, (is_training,))
@@ -181,4 +181,5 @@ def show_loaded_images(images, labels, class_names, num_images=9, filename="exam
         plt.title(class_names[np.argmax(labels[idx])])
         plt.axis("off")
     plt.savefig(file_path)
-    print(f"Overview of images and their classes are stored in {file_path}")
+    print(f"Overview of input_data and their classes are stored in {
+          file_path}")
