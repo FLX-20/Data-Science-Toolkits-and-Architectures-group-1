@@ -69,7 +69,7 @@ def classify_image_func():
             prediction_timestamp = datetime.now()
 
             query = """
-            INSERT INTO image_predictions (id, image_id, predicted_label, model_name, prediction_timestamp)
+            INSERT INTO predictions (id, image_id, predicted_label, model_name, prediction_timestamp)
             VALUES (%s, %s, %s, %s, %s);
             """
             cursor.execute(

@@ -1,17 +1,17 @@
 FROM python:3.12-slim
 
-# Set working directory
+RUN useradd -m appuser
+
 WORKDIR /app
 
-# Install dependencies
-COPY . /app
+RUN pip install --upgrade pip
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir --default-timeout=100000 tensorflow==2.18.0
-RUN pip install --no-cache-dir --default-timeout=100000 -r requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir --default-timeout=10000000 --require-hashes -r requirements.txt
 
-# Expose the application port
-EXPOSE 8000
+RUN chown -R appuser:appuser /app
+USER appuser
 
-# Run the application
+COPY src /app/src
+
 CMD ["python", "src/main.py", "--mode", "all"]

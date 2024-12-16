@@ -1,6 +1,6 @@
 # Milestone 3
 
-## Task 1 - Setting Up Docker Compose
+## [Task 1](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/39) - Setting Up Docker Compose
 
 We installed the docker-compose and got through the 
 [tutorial] (https://docs.docker.com/compose/gettingstarted/).
@@ -12,7 +12,8 @@ been seen 1 times.`, when refreshing the page the 1 changed into 2 The second co
 World! I have been seen 1 times.`, when refreshing the page the 1 changed into 2. This was no surpise because we 
 wrote `return f'Hello from Docker! I have been seen {count} times.\n'` in the app.py file. When we completed step 8 
 we used the command `docker compose stop` to bring everything down and remove all the containers, ending the 
-tutorial.
+tutorial.  
+The tutorial's results were ultimately excluded because only project-related code that contributes to the final goal should be stored in the GitHub Repo.  This exercise served to convey the basics for the next tasks.
 
 
 ### 1.1 Services used for application and how they relate to host names in computer networks
@@ -29,19 +30,53 @@ Localhost is refering to the machine´s loopback address, which in this case is 
 
 
 
-## Task 2 - Simple PostgreSQL Application
+## [Task 2](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/41) - Simple PostgreSQL Application
+Because we didn't want to mix two independent projects (the joke exercise and the actual CNN project), the joke database application was excluded from another GitHub repository. This repo can be found under this [link](https://github.com/igilan80/Data-Science-Toolkits-and-Architectures-group-1-joke-databse) and can be cloned with this command.
+```shell
+git clone https://github.com/igilan80/Data-Science-Toolkits-and-Architectures-group-1-joke-databse.git
+```
+In this repo, a tag and a release for milestone_3 were create, like in the origanl repo.
 
-a) What is PostgreSQL? SQL or NoSQL
-It is a RDBMS, which is short for relational database management system - it uses SQL, which is short for structured query language to access, define and manipulate data. Furthermore the ACID structure, referring to the data points being Atomic, Consistent, Isolated and Durable is another sign for the SQL nature of PosegreSQL. As such it is SQL as the data is stored in a structured way in tables with rows and columns and Primary as well as Foreign Keys are utilized.
+### 2.1 What is PostgreSQL? SQL or NoSQL
+It is a RDBMS which is short for relational database management system - it uses SQL, which is short for structured query language to access, define and manipulate data. Furthermore the ACID structure, referring to the data points being Atomic, Consistent, Isolated and Durable is another sign for the SQL nature of PosegreSQL. As such it is SQL as the data is stored in a structured way in tables with rows and columns and Primary as well as Foreign Keys are utilized.
 
-b) If the container was stopped  and started again the joke would still be in the Database, yes, because the data memory is not-volatile, meaning it can persist through restarts or even power outtages. This means that the joke will still persist, as it does after one has used "stop" and "start" commands to restart the container, because docker volumes remain even after the corresponding container stops. 
+### Task 2.2 Postgres Adapter
+The task explicitly asked to use a Postgres adapter and not immediately implement a Flask application, as introduced in the last lecture.  
+In this project, we used the (psycopg2)[https://pypi.org/project/psycopg2/], which according to pypi " is the most popular PostgreSQL database adapter for the Python programming language".  
+This enabled us to  execute SQL queries within the Python code, allowing for efficient modifications to the database tables.
+
+### Task 2.3 - Documentation on the joke database
+The create yaml-file file creates three containers if it is executed.
+There is one container for the PostgreSQL database, one for pgadmin, and the last one for the actual Python application. The additional Dockerfile defines the Python application's container.
+In this way, the entire application can be executed by entering:
+``` shell
+docker-compose up
+```
+This pulls, builds and runs all defined containers in the yaml-file.
+It is important to mention here, that an `env` file has to be created beforehand. This file should include the following variables:
+``` shell
+POSTGRES_USER=your_user_name
+POSTGRES_PASSWORD=your_pwd
+PGADMIN_DEFAULT_EMAIL=your_email_address
+PGADMIN_DEFAULT_PASSWORD=your_pwd
+DB_NAME=milestone_3
+```
+This file is never pushed to the repository because it includes secret information that should not be shared with the public.  
+A great and short tutorial about the entire setup process of Docker Compose, pgAdmin, and PostgreSQL was found at this [link](https://www.youtube.com/watch?v=qECVC6t_2mU), which was very helpful during the implementation.
+
+The final Python application is divided into three files. 
+1) `db_connect.py` includes the `connect()` function that establishes a connection between the app container and the database
+2) `joke_opertation.py` includes all operations related to the joke database, such as creating a table (`create_joke_table()`), adding a joke (`add_joke()`), deleting a joke from the database table (`delete_joke()`), fetching all jokes (`get_all_jokes()`) or modify a joke by its id (`get_all_jokes()`). Furthermore, a function was added, which gets n jokes from the `jokes-package and returns them in a list.
+3) `main.py` executes these functions in an example sequence, consisting of the creation of the table, writing two jokes to the table, modifying the last joke and deleting the first one.
+
+### 2.4 tackled issues
+Some time the first connection attempt of the app-container with the database failed. For this reason a for loop was implemented, which tries to connect to the datbase 5 times with a short delay between every attempt. If all five attempts fail. it is real not possible to establish a connection.
+
+### 2.5 Stopping Containers 
+If the container was stopped  and started again the joke would still be in the Database, because the data memory is not-volatile, meaning it can persist through restarts or even power outtages. This means that the joke will still persist, as it does after one has used "stop" and "start" commands to restart the container, because docker volumes remain even after the corresponding container stops. 
 
 
-
-
-
-
-## Task 3 - Loading and Saving Images in PostgreSQL Database
+## [Task 3](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/42) - Loading and Saving Images in PostgreSQL Database
 
 ### 3.0 Intorduction of impedance mismatch and object relational mappers
 
@@ -130,7 +165,7 @@ FROM images
 WHERE dataset_name = 'Animal';
 ```
 
-## Task 4 - Multi-Docker Container Application
+## [Task 4](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/47) - Multi-Docker Container Application
 
 ### 4.1 PostgreSQL Container
 It PostgreSQL Database runs in its own container. This container is called `postgre_conatainer` for easier identification. This container uses the latest PostgreSQL image, which is downloaded from Dockerhub. 

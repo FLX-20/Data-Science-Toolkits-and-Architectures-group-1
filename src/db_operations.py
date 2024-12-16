@@ -23,7 +23,7 @@ def execute_query(query, params=None):
 def create_table():
 
     query = """
-    CREATE TABLE IF NOT EXISTS images (
+    CREATE TABLE IF NOT EXISTS input_data (
         id UUID PRIMARY KEY,
         url TEXT NOT NULL,
         label TEXT NOT NULL,
@@ -37,9 +37,9 @@ def create_table():
 def create_predictions_table():
 
     query = """
-    CREATE TABLE IF NOT EXISTS image_predictions (
+    CREATE TABLE IF NOT EXISTS predictions (
         id UUID PRIMARY KEY,
-        image_id UUID NOT NULL REFERENCES images(id) ON DELETE CASCADE,
+        image_id UUID NOT NULL REFERENCES input_data(id) ON DELETE CASCADE,
         predicted_label TEXT NOT NULL,
         model_name TEXT NOT NULL,
         prediction_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -51,7 +51,7 @@ def create_predictions_table():
 def insert_image_metadata(image_id, url, label, dataset_name):
 
     query = """
-    INSERT INTO images (id, url, label, dataset_name)
+    INSERT INTO input_data (id, url, label, dataset_name)
     VALUES (%s, %s, %s, %s)
     """
     params = (str(image_id), url, label, dataset_name)
@@ -62,7 +62,7 @@ def get_image_metadata_by_uuid(uuid_input):
 
     query = """
     SELECT id, url, label, dataset_name
-    FROM images
+    FROM input_data
     WHERE id = %s;
     """
     try:
@@ -93,7 +93,7 @@ def get_image_metadata_by_uuid(uuid_input):
 def split_data_into_training_and_testing(validation_split=0.2, seed=24):
 
     query = """
-    SELECT id, label FROM images
+    SELECT id, label FROM input_data
     """
     try:
         conn, cursor = create_connection()
@@ -118,11 +118,11 @@ def split_data_into_training_and_testing(validation_split=0.2, seed=24):
 
         # Update the database
         cursor.executemany(
-            "UPDATE images SET is_training = TRUE WHERE id = %s;",
+            "UPDATE input_data SET is_training = TRUE WHERE id = %s;",
             [(id_,) for id_ in training_ids]
         )
         cursor.executemany(
-            "UPDATE images SET is_training = FALSE WHERE id = %s;",
+            "UPDATE input_data SET is_training = FALSE WHERE id = %s;",
             [(id_,) for id_ in testing_ids]
         )
         conn.commit()
@@ -135,7 +135,7 @@ def split_data_into_training_and_testing(validation_split=0.2, seed=24):
 
 def get_uuids(is_training=True):
 
-    query = "SELECT id FROM images WHERE is_training = %s;"
+    query = "SELECT id FROM input_data WHERE is_training = %s;"
     try:
         conn, cursor = create_connection()
         cursor.execute(query, (is_training,))
@@ -150,7 +150,7 @@ def get_uuids(is_training=True):
 def get_metadata_by_uuids(uuids):
 
     placeholders = ','.join(['%s'] * len(uuids))
-    query = f"SELECT id, url, label, dataset_name FROM images WHERE id IN ({
+    query = f"SELECT id, url, label, dataset_name FROM input_data WHERE id IN ({
         placeholders});"
     try:
         conn, cursor = create_connection()
@@ -169,7 +169,7 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_wid
 
     # Retrieve metadata
     placeholders = ','.join(['%s'] * len(uuids))
-    query = f"SELECT id, label FROM images WHERE id IN ({placeholders});"
+    query = f"SELECT id, label FROM input_data WHERE id IN ({placeholders});"
     try:
         conn, cursor = create_connection()
         cursor.execute(query, tuple(uuids))

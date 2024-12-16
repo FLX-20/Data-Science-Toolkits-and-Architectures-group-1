@@ -1,9 +1,9 @@
-version: '3.8'
+version: '3.9'
 
 services:
   db:
     container_name: postgres_container
-    image: postgres:latest
+    image: postgres:12-alpine3.20
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -17,8 +17,8 @@ services:
       - app_network
 
   pgadmin:
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4:latest
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:8.14
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -46,8 +46,6 @@ services:
       DB_PORT: 5432
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
     networks:
       - app_network
     depends_on:
