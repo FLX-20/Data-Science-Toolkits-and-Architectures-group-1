@@ -12,6 +12,5 @@ RUN pip install --no-cache-dir --default-timeout=10000000 --require-hashes -r re
 RUN chown -R appuser:appuser /app
 USER appuser
 
-COPY src /app/src
-
-CMD ["python", "src/main.py", "--mode", "all"]
+# Set the entrypoint script
+ENTRYPOINT ["sh", "scripts/entrypoint.sh"]

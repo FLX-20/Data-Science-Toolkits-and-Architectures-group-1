@@ -11,3 +11,4 @@ reports/
 datasets/
 images/
 scripts/
+wandb/
