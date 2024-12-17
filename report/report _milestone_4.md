@@ -109,33 +109,64 @@ For instance, a false positive where a dog is classified as a cat, or a false ne
 Thus, the use of accuracy as the evaluation metric aims to measure the overall effectiveness of the model in correctly identifying each class without introducing bias toward any particular category.
 
 ## Task 3 - Data analysis in Jupyter Notebook 
-First we needed to check if Jupyter Notebook was installed in our VS code. We used `jupyter notebook --version` and 
-got `7.3.1` as answer. Then we could start making the exercises.
+Thanks to the Jupyter Notebook extension in VS Code, `.ipynb` files can be easily created and modified.
+Furthermore, (Jupyter)[https://pypi.org/project/notebook/] and (IPython)[https://pypi.org/project/ipykernel/] have to be installed installed in the current Python environment. This can be done with the following command.
+```
+pip install notebook ipykernel
+```
+This allows us to run `.ipynb` files in the VS-Code working environment. The created notebook includes the functionalities for loading the data, showing a random sample of images from each class, creating the rgb-histograms and hsv-histograms for each each class. These steps are closer explained in the next chapters.
 
-### Loading data from Numpy Array with dimensions where channels is 3 in an RGB image
-The dataset analysis began with loading image data into Numpy arrays. A Python function was implemented to download 
-images from given URLs using the requests library and the PIL module. The downloaded images were then converted 
-into Numpy arrays. Each Numpy array had the shape (width, height, channels), with the channels dimension equal to 
-3, representing the RGB color channels (Red, Green, and Blue).
-The images were organized into three classes: dogs, cats, and snakes. For each class, the number of images and the 
-shape of the first image were printed to confirm successful loading. This step ensures the dataset structure is 
-intact and provides preliminary insights into the image dimensions.
+### 3.1 Downloading the Data
+In the first step, the dataset is downloaded from Kaggle in the same way as in our actual project codebase.
+The main difference is that the exception handling was removed, which is not necessary in a Jupiter notebook because the code blocks are executed sequentially and manually by the user. Thus this exception handling only adds additional overhead here from our point of view.
+The final downloaded images were organized into three classes: dogs, cats, and snakes.
 
-### Analyze data with Numpy
-Basic statistics about the dataset were calculated, such as the number of images per class and their dimensions. 
-The uniformity of image dimensions across the dataset was verified to ensure compatibility with subsequent analysis.
-To get a visual understanding of the dataset, a 3x3 grid of random images from each class was displayed using 
-Matplotlib. This allowed an intuitive inspection of image quality and content, helping to confirm that the data was 
-loaded correctly.
-For each class, histograms of pixel intensities were created for the Red, Green, and Blue channels. This analysis 
-revealed differences in color distributions between the classes, offering a basis for distinguishing them.
-The RGB images were converted to the HSL (Hue, Saturation, Lightness) color space using the PIL library. Histograms 
-for the Hue, Saturation, and Lightness channels were plotted. The HSL analysis provided an alternative perspective 
-on color characteristics, aiding in understanding class-specific features.
-To explore patterns and relationships in the dataset, dimensionality reduction was applied using PCA (Principal 
-Component Analysis). Each image was flattened into a 1D array, and the PCA algorithm reduced the dataset to two 
-dimensions. A scatter plot was created to visualize the classes in 2D space, revealing clusters and overlaps 
-between the classes. This step helped uncover separability and shared characteristics across the dataset.
+### 3.2 Loading Data into Numpy Array
+In the next step, the images of each class are loaded into a separate numpy arrays. Each Numpy array has the shape (num_class_img, width, height, channels), with the channels dimension equal to 3, representing the RGB color channels (Red, Green, and Blue), and num_class_imag equal to 1000 because each class consists of 1000 images.  
+All images in the dataset have a height and a width of 256 pixels. In our main project codebase, the images are scaled down to 128 pixels, because of the limited computation capacities of our computers. However, in this analysis, we will continue with the original image size.
+
+### 3.3 Showing Images of each Dataset
+In the subsequent part of the data/image analysis, random images of each class are shown in a 4 by 4 grid to get a first impression of the data.
+There is no random seed in this code, meaning every time the code is executed new random 16 images of each class are shown. 
+
+### 3.4 RGB-Histogram
+The RGB histograms for each class were generated by counting the occurrences of each colour value. 
+To simplify the analysis, we chose a bin size of 32 instead of using all 256 individual values. 
+This means that consecutive values are grouped into a single bin; for example, values ranging from 0 to 31 are combined into one bin instead of being represented as 32 separate bins.  
+Furthermore, the y-axis was changed from absolute values to relative frequency, describing the proportion of pixel occurrences 
+within each bin relative to the total number of pixels in the image or class. This makes interpretation easier and the y-axis is independent of the number of images loaded.  
+The visualization of the histograms of the three classes shows some small differences in the colours of the images.
+The red and green channels of the cat histogram appear uniform except at the end where you can see a decrease starting around 180. 
+But both histograms peak in the end at high pixel values. The blue channel histogram on the other side shows a gradual decline from low values to high values, 
+but also with a smaller peak at the end. Thus shows a balanced RGB spread but with brighter peaks compared to the other classes.  
+Also, the dog's histograms show a form of uniform distribution, but in a weaker form due to the higher counts in the middle.
+Altogether this indicates smooth and even colour-balanced images.
+On the other side, the RGB histograms for the snakes show stronger colour contrasts, 
+because of the large peaks in the dark and bright regions of all channels. These peaks can be seen in all histograms but in the snakes once it is the most intense form.
+
+
+### 3.5 HSV-Histrogram
+In the last step the HSV-Histograms are created. HSV-colours represetns colors using Hue (H), Saturation (S) and Value(V),
+like shown on the next image.  
+![A descriptive alt text](https://upload.wikimedia.org/wikipedia/commons/3/33/HSV_color_solid_cylinder_saturation_gray.png)  
+The **Hue** represents the type of colour in form of defrees from 0 to 360. The most important degrees are: 0° (red), 60° (yellow), 120° (green), 180° (cyan), 180° (blue) and 300° (Magenta).
+If you rotate the wheel once, you transtion smoothly through the rainbow spectrum.
+The **Saturation** states how intense the colour is, ranging from 0% to 100% or 0 to 1.
+0% means completely desaturated (graysacle). On the other side 100% is fully saturated.
+The last channel is the **Value**, which refers to the brightness of the colour. It also ranges from 0% to 100% or 0 to 1.
+Here 0% is black, meaning no brightness and 100% is full brightness. 
+
+So, the RGB values were converted into HSV values, and the three new colour channels were represented again in histograms.
+From the cats' histograms, it can be concluded that cat images predominantly have warm hues (red, orange, and yellow) because of the higher concentration of hue between 0° and 50°.
+Moreover, a low saturation and a balanced lightness distribution can be seen in the other two cat histograms.
+The dogs' histogram exhibits slightly broader hues compared to the cat histogram.
+Moreover, the saturation can be described as muted, and the lightness is again well-distributed.
+All this emphasizes a diverse but still natural colour palette for dogs.
+The snakes' histogram reflects again the colourful but also highly contrasted nature of snake images, due to the high peaks in all plots.
+
+### Final conlsusion of analysis
+Both the RGB and HSV show different distributions for cats, dogs, and snake images.
+However, it can be noticed that the cat and dog images are more similar regarding their color compared to the snake images. This might be one reason why our CNN more often misclassifies cats as dogs or dogs as cats than it does with snakes. This can be seen in the confusion matrix of all the neural networks.
 
 
 
