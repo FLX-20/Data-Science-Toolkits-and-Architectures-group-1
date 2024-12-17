@@ -6,27 +6,25 @@ This repository contains the code and resources for the subject "Data Science To
 ## Prerequisites
 - Git 2.43.0
 - Docker 27.3.1
+- Docker Compose 1.29.1
 
 ## Executing the Code
 The entire code can be executed by the following command in the CLI, if it is executed in the root directory of the cloned repository.
 ```shell
 docker compose up
 ```
-This command downloads docker images (pgadmin and PostgreSQL), builds, and runs the containers according to the created yaml file. 
-Before you run the command make sure that you defined an `.env` file for your personal environment variables for this project. This `.env`-file has to include the following variables.
+After the execution of this command, three different CNNs are trained and evaluated. The results are transmitted to the related public [weights and bias project](https://wandb.ai/fe-pappe-dsta-1/cnn-training/workspace).
+Moreover, it is important to notice that an `.env' file has to be created before the code can be successfully executed. This file should include the following variables.
 ```
-POSTGRES_USER=root
-POSTGRES_PASSWORD=root
-PGADMIN_DEFAULT_EMAIL=admin@admin.com
-PGADMIN_DEFAULT_PASSWORD=root
-DB_NAME=milestone_3
+POSTGRES_USER=your_user_name
+POSTGRES_PASSWORD=your_pwd
+PGADMIN_DEFAULT_EMAIL=your_email
+PGADMIN_DEFAULT_PASSWORD=your_pwd
+DB_NAME=milestone_4
+WANDB_API_KEY=your_weights_and_biases_key
 ```
-This example is only for localhost setup. If you would like to run code on a public excessible server you have to change these defaults settings and adjust the DB_HOST variable in the `yaml` file.
 
-The program code in the thrid app-container runs the following sequence of actions:
-- downloading the training and testing data
-- saves the image dataset and their metadata in a Postgre Database
-- Trains the CNN based on the training set
-- Evaluate the final trained model
-- Saves the trained model
-- Make predictions on the testing data and save the results also in a PostgreSQL table
+Then the program code of the application container will execute the following steps:
+- Downloading the training and testing data
+- Training three different CNNs (small, medium, large)
+- Share the evaluation results in a weights and biases project

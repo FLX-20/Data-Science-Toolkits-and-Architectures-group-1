@@ -1,6 +1,6 @@
 # Milestone 4
 
-## Task 1 - Evaluation Metrics and Weights and Biases
+## [Task 1](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/43) - Evaluation Metrics and Weights and Biases
 First, we all made an account at Weights and Biases [website] (https://www.wandb.com/).
 Afterwards, we completed the tutorial on [GoogleColab] (https://colab.research.google.com/drive/1pMcNYctQpRoBKD5Z0iXeFWQD8hIDgzCV)
 
@@ -72,7 +72,7 @@ This shows how many actual positives the model manages to find.
 
 
 
-## Task 2 - Improving Model Performance
+## [Task 2](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/45) - Improving Model Performance
 
 After a `Weights and Biases` account had been created, the existing codebase was instrumented with `Weights and Biases` features.  This was achieved by adding a new operational mode, besides, `download_data`, `train`, `test` and `all`. This mode is `wandb_run`, which builds several models defined in a JSON file and transmits the results to the Weights and Biases server. In this way, one can evaluate the models in the related web-application.
 
@@ -106,9 +106,15 @@ For the final project, it seems to be important to define more models and do thi
 The selected evaluation metric, which we have choosen is accuracy. The reason for this is that we have at the moment a balanced dataset with a equal number of cat, dog and snake images.  
 Moreover the false postive or flase negative are equally bad, because both types of errors result in misclassification of animals, which defeats the main purpose of our model of predicting all anaimal types correctly.  
 For instance, a false positive where a dog is classified as a cat, or a false negative where a snake is classified as not a snake, carries the same affect for us in terms of model performance degradation.  
-Thus, the use of accuracy as the evaluation metric aims to measure the overall effectiveness of the model in correctly identifying each class without introducing bias toward any particular category.
+Thus, the use of accuracy as the evaluation metric aims to measure the overall effectiveness of the model in correctly identifying each class without introducing bias toward any particular category. 
 
-## Task 3 - Data analysis in Jupyter Notebook 
+#### 2.5 Weights and Biases Dashboard
+On the [weights and biases dashboard](https://wandb.ai/fe-pappe-dsta-1/cnn-training/workspace?nw=nwuserfepappe) it is clearly visible that all three models almost reach the same accuracy of around 0.70 after 20 epochs.
+This can be a first indication that the dataset could be too small and not diverse enough to predict the correct label with high accuracy.
+However, it is too early to draw a final conclusion, because only three models have been created and a detailed model selection has not been conducted.
+According to Occam's razor, we would select the smallest CNN for which the confusion matrix is created in the end.
+
+## [Task 3](https://github.com/FLX-20/Data-Science-Toolkits-and-Architectures-group-1/issues/45) - Data analysis in Jupyter Notebook 
 Thanks to the Jupyter Notebook extension in VS Code, `.ipynb` files can be easily created and modified.
 Furthermore, (Jupyter)[https://pypi.org/project/notebook/] and (IPython)[https://pypi.org/project/ipykernel/] have to be installed installed in the current Python environment. This can be done with the following command.
 ```

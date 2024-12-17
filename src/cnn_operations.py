@@ -4,7 +4,7 @@ from evaluate import evaluate_model
 from train import train_model
 from models import build_cnn
 from data_loader import download_and_prepare_dataset
-from app_config import DATASET_PATH, URL_TRAINING_DATA, DATASET_NAME, BATCHE_SIZE, EPOCHS, MODEL_NAME
+from app_config import DATASET_PATH, URL_TRAINING_DATA, DATASET_NAME, BATCHE_SIZE, EPOCHS, MODEL_NAME, MODEL_SAVE_PATH
 from datetime import datetime
 import os
 import numpy as np
@@ -44,6 +44,9 @@ def test_model_func():
 
     testing_uuids = get_uuids(is_training=False)
     model = load_model_from_keras(MODEL_NAME)
+    # check if model is loaded
+    if not model:
+        raise ValueError("Failed to load the model.")
     images, labels = load_images_and_labels_by_uuids(
         testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
 
@@ -135,12 +138,13 @@ def wandb_taining(x_train, y_train, x_test, y_test):
         loss, accuracy = model.evaluate(x_test, y_test)
         print(f"Model: {arch['name']} - Loss: {loss}, Accuracy: {accuracy}")
 
-        directory = os.path.dirname(f"MODEL_SAVE_PATH/{arch['name']}_model.h5")
+        directory = os.path.dirname(
+            f"{MODEL_SAVE_PATH}/{arch['name']}_model.keras")
 
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        model_path = f"MODEL_SAVE_PATH/{arch['name']}_model.h5"
+        model_path = f"{MODEL_SAVE_PATH}/{arch['name']}_model.keras"
         model.save(model_path)
         wandb.save(model_path)
         wandb.finish()
