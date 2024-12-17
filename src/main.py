@@ -1,8 +1,5 @@
 from cnn_operations import download_data, train_model_func, test_model_func, classify_image_func, train_model_wandb
-from app_config import DATASET_PATH
 import argparse
-
-# dev for milestone 4
 
 
 def main():
@@ -20,8 +17,8 @@ def main():
     elif args.mode == "test":
         test_model_func()
     elif args.mode == "wandb_run":
-        # download_data()
-        # train_model_wandb()
+        download_data()
+        train_model_wandb()
         test_model_func()
     elif args.mode == "all":
         download_data()
