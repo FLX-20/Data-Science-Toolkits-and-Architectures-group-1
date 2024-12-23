@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from .utils import decode_image
 bp = Blueprint('routes', __name__)
 
 
@@ -7,9 +8,10 @@ def predict():
 
     if 'image' not in request.files:
         return jsonify({"error": "No image provided"}), 400
-    file = request.files['image']
+    img = request.files['image']
     try:
-        prediction = 100
-        return jsonify({"prediction": int(prediction)})
+        image_array = decode_image(img)
+        print(image_array)
+        return jsonify({"prediction": int(1)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
