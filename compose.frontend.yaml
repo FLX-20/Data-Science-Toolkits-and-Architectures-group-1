@@ -43,6 +43,7 @@ services:
       - .:/app
     environment:
       FLASK_APP: app
+      FLASK_ENV: development  
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DB_NAME: ${DB_NAME}
