@@ -26,8 +26,8 @@ For this reason, there are blueprints in Flask, that allow organizing the applic
 Furthermore, it increases the redability of the code.  
 In the `initialize_database` function an connection to the database is established. On our devices, there is still the problem, that the database connection can not always be established in the first attempt. This was solved, like in the previous milestone by trying it five times. If no connection can be created after five attempts there is are real issue with the connection.
 
-
-
+### 2.2 SQLAlchemy and Databases
+Instead of using `psycopg2` for interactions with the PostgreSQL database, the Flask application now uses SQLAlchemy. SQLAlchemy is a library that facilitates database interactions by providing tools for Object-Relational Mapping (ORM) and SQL execution. More detailed information on this topic has already been given in the third report. The SQLAlchemy models are defined in the `database.py` file. The database tables and structures remain unchanged from the previous milestones, consisting of the `input_data` and `predictions` tables. The only difference is that these tables are now accessed using SQLAlchemy.
 
 
 
