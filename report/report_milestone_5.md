@@ -55,8 +55,6 @@ Afterwards the the `save_image_with_uuid` function is called, that save the imag
 In the last step the prediction is saved in the `predicition` tabel of the database.
 At the end the `prediction` and `image_path` are returned.
 
-
-
 The Flask application uses the pre-trained neural network generated in previous milestones. The model is loaded through the `load_model()` function located in the `model.py` file. This file also includes the `model_predict` function, which executes the model using the provided image to return a prediction.
 
 Utility functions not directly related to the neural network are implemented in the `utils.py` file. The `process_image_and_predict` function is called by both prediction routes and encompasses the entire prediction workflow.
@@ -68,5 +66,37 @@ Following the image processing, the `model_predict` function is called to genera
 Finally, the prediction is saved in the `prediction` table of the database. At the end of the process, the function returns the prediction alongside the path to the saved image.
 
 ## Task 3 Frontend
+The frontend presented to the user is defined in the `index.html` file located in the `templates` directory. This file make use of the Bootstrap framework for styling and layout, which provides a variety of pre-styled components and a responsive grid system. The decision to use Bootstrap was made, because of prior experience with the framework from past projects.    
+By assembling components from the Bootstrap [documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/), we were able to create an adaptive and user-friendly interface without the need for additional CSS or JavaScript files.    
+Additionally, the templating engine Jinja is used in this file to dynamically change content on the HTML page. It manages the rendering logic based on the data passed from the Flask backend. Jinja's `{{ ... }}` syntax is applied to embed Python variables or expressions.  For instance, this is used to return the prediction value.    
+Furthermore, Jinja uses `{% ... %}` blocks for control logic, such as loops and conditionals. For example, we used these blocks to render only the lower part of the page when a prediction was returned.  
+The remainder of the `index.html` file consists of standard HTML code, which provides the webpage with its structure.
+
+## Task 4 Production Architecture
+During the entire development phase, the system was tested on the local Flask development server. However, this server is not suitable for production for several reasons. For instance, the Flask development server is single-threaded by default, which means it can only handle one request at a time. As a result, it is not capable of serving multiple users simultaneously. Additionally, it does not support load balancing, a feature often necessary for large-scale applications.  
+Moreover, the Flask server is not optimized for high performance. It is designed for testing and debugging purposes. Thus, it lacks security features, making it vulnerable to various attacks.  
+For these reasons, Gunicorn and Nginx were introduced in the lecture. Gunicorn is a Python WSGI HTTP server. A WSGI (Web Server Gateway Interface) HTTP server acts as an intermediary between our web application (written in Python) and a web server. It provides a standardized interface for Flask-Python web applications to communicate with web servers.  
+We installed Gunicorn using the following command:  
+```shell
+pip install gunicorn
+```
+Afterwards the CMD in der dockerfile was change:  
+```Dockerfile
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:create_app()"]
+```
+The Command runs the Flask application using Gunicorn, which listens on port 5000 and instantiates two worker processes. These workers allow the application to handle multiple requests concurrently. It is also possible to create an additional configuration file for Gunicorn to enable more complex configurations. This was not necessary in this project due to the simplicity of the application.  
+Moreover, Nginx has been configured as a web server designed to efficiently handle high traffic loads. It acts as a reverse proxy for the web service, forwarding incoming HTTP requests from clients (e.g., browsers) to the backend application running on port 5000. Clients interact only with Nginx on port 8080, which enhances the security and organization of the application.  
+If we run multiple instances of our web service, Nginx can distribute traffic among them to manage several requests effectively. Furthermore, Nginx serves as a centralized access point, making traffic monitoring easier.  
+In this final milestone, the integration and setup of Nginx posed the biggest challenge due to its numerous features and capabilities. Therefore, we opted for the simplest implementation in the `nginx.conf` file, given the small size of the project. Moreover, an additional Docker container was defined for Nginx in the Docker Compose file.
+  
+The final flow of requests from our understanding is as:
+- client sends a request to `http://localhost:8080`
+- nginx listens to port `8080`, which is mapped to port 80 in the container
+- nginx configuration nginx.conf routes requests to `ttp://web:5000`, which is the Flask app in the `web` container
+- The `web` service is running a Gunicorn server (defined in the CMD in the Dockerfile)
+- Gunicorn passes requests to the Flask application using the WSGI protocol.
+- In `web` Flask processes the request, generates a response, and sends it back to Gunicorn.
+- Gunicorn receives the response from Flask and sends it back to NGINX
+- Then, in the end, nginx forwards the response to the client
 
 ## Task 4 Bringing Everything together 
