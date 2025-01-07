@@ -182,7 +182,7 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_wid
     for uuid, label in rows:
         img_path = os.path.join(dataset_path, f"{uuid}.jpg")
         if not os.path.exists(img_path):
-            print(f"Image not found for UUID {uuid}, skipping.")
+            print(f"Image has not been found for UUID {uuid}, skipping.")
             continue
 
         # Load and preprocess the image

@@ -63,7 +63,7 @@ def preprocess_images_and_labels(dataset, num_classes):
     return images, labels
 
 
-def load_dataset(dataset_name, is_training=True, img_height=180, img_width=180):
+def load_dataset(dataset_name, is_training=True, img_height=28, img_width=28):
     """
     Loads dataset based on training/testing flag.
     """

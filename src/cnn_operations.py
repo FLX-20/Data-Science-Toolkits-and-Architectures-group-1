@@ -118,21 +118,62 @@ def classify_image_func():
         conn.close()
 
 
-def train_model_wandb():
+def preprocess_image(img_path, label, img_height=28, img_width=28):
+    img = tf.io.read_file(img_path)
+    img = tf.image.decode_jpeg(img, channels=3)
+    img = tf.image.resize(img, [img_height, img_width])
+    img = img / 255.0
+    label = tf.cast(label, tf.int32)
+    return img, label
 
+
+def create_tf_dataset(uuids, dataset_path, label_map, batch_size=32, img_height=28, img_width=28):
+    # Map UUIDs to file paths and labels
+    img_paths = [os.path.join(dataset_path, f"{uuid}.jpg") for uuid in uuids]
+    labels = [label_map[uuid] for uuid in uuids]
+
+    # Create a TensorFlow dataset
+    dataset = tf.data.Dataset.from_tensor_slices((img_paths, labels))
+    dataset = dataset.map(lambda x, y: preprocess_image(x, y, img_height, img_width),
+                          num_parallel_calls=tf.data.AUTOTUNE)
+    dataset = dataset.shuffle(buffer_size=1000).batch(
+        batch_size).prefetch(tf.data.AUTOTUNE)
+
+    return dataset
+
+
+def train_model_wandb():
     training_uuids = get_uuids(is_training=True)
     testing_uuids = get_uuids(is_training=False)
 
-    images, labels = load_images_and_labels_by_uuids(
-        training_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
-    test_images, test_labels = load_images_and_labels_by_uuids(
-        testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
+    label_map = fetch_label_map(training_uuids + testing_uuids)
 
-    wandb_taining(images, labels, test_images, test_labels)
+    train_dataset = create_tf_dataset(
+        training_uuids, os.path.join(DATASET_PATH, DATASET_NAME), label_map)
+    test_dataset = create_tf_dataset(
+        testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME), label_map)
+
+    wandb_taining(train_dataset, test_dataset, label_map)
 
 
-def wandb_taining(x_train, y_train, x_test, y_test):
+def fetch_label_map(uuids):
+    placeholders = ','.join(['%s'] * len(uuids))
+    query = f"SELECT id, label FROM input_data WHERE id IN ({placeholders});"
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(query, tuple(uuids))
+        rows = cursor.fetchall()
+    except Exception as e:
+        raise RuntimeError(f"Error fetching image labels: {e}")
+    finally:
+        conn.close()
 
+    label_map = {row[0]: int(row[1]) for row in rows}
+    return label_map
+
+
+def wandb_taining(train_dataset, test_dataset, label_map):
+    # Load architectures from JSON file
     with open("architecutres/architectures.json", "r") as file:
         architectures = json.load(file)
 
@@ -140,36 +181,45 @@ def wandb_taining(x_train, y_train, x_test, y_test):
         print(f"Training model: {arch['name']}")
         print(arch)
 
+        # Initialize a new WandB run
         wandb.init(project="cnn-training", name=arch['name'], config=arch)
         config = wandb.config
-        print(config)
 
+        # Build the model
         model = build_model_wandb(
-            config, input_shape=x_train.shape, num_classes=y_train.shape[1])
+            config=config,
+            input_shape=(config.img_height, config.img_width, 3),
+            num_classes=len(set(label_map.values()))
+        )
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=config.learning_rate) \
-            if config.optimizer == "adam" else tf.keras.optimizers.SGD(learning_rate=config.learning_rate)
+        # Define the optimizer
+        optimizer = (
+            tf.keras.optimizers.Adam(learning_rate=config.learning_rate)
+            if config.optimizer == "adam"
+            else tf.keras.optimizers.SGD(learning_rate=config.learning_rate)
+        )
+
+        # Compile the model
         model.compile(optimizer=optimizer,
-                      loss="categorical_crossentropy", metrics=['accuracy'])
+                      loss="sparse_categorical_crossentropy",
+                      metrics=['accuracy'])
 
+        # Train the model
         history = model.fit(
-            x_train, y_train,
+            train_dataset,
+            validation_data=test_dataset,
             epochs=config.epochs,
-            batch_size=config.batch_size,
-            validation_data=(x_test, y_test),
             callbacks=[WandbMetricsLogger()]
         )
 
-        loss, accuracy = model.evaluate(x_test, y_test)
+        # Evaluate the model
+        loss, accuracy = model.evaluate(test_dataset)
         print(f"Model: {arch['name']} - Loss: {loss}, Accuracy: {accuracy}")
 
-        directory = os.path.dirname(
-            f"{MODEL_SAVE_PATH}/{arch['name']}_model.keras")
-
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        model_path = f"{MODEL_SAVE_PATH}/{arch['name']}_model.keras"
+        # Save the model
+        model_dir = os.path.join(MODEL_SAVE_PATH, arch['name'])
+        os.makedirs(model_dir, exist_ok=True)
+        model_path = os.path.join(model_dir, f"{arch['name']}_model.keras")
         model.save(model_path)
         wandb.save(model_path)
         wandb.finish()

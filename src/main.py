@@ -17,7 +17,7 @@ def main():
     elif args.mode == "test":
         test_model_func()
     elif args.mode == "wandb_run":
-        download_data()
+        # download_data()
         train_model_wandb()
         test_model_func()
     elif args.mode == "all":
