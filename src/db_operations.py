@@ -25,10 +25,9 @@ def create_table():
     query = """
     CREATE TABLE IF NOT EXISTS input_data (
         id UUID PRIMARY KEY,
-        url TEXT NOT NULL,
         label TEXT NOT NULL,
         dataset_name TEXT NOT NULL,
-        is_training BOOLEAN NOT NULL DEFAULT TRUE
+        is_training BOOLEAN DEFAULT TRUE
     );
     """
     execute_query(query)
@@ -48,20 +47,21 @@ def create_predictions_table():
     execute_query(query)
 
 
-def insert_image_metadata(image_id, url, label, dataset_name):
+def insert_image_metadata(image_id, label, dataset_name):
 
     query = """
-    INSERT INTO input_data (id, url, label, dataset_name)
+    INSERT INTO input_data (id, label, dataset_name, is_training)
     VALUES (%s, %s, %s, %s)
     """
-    params = (str(image_id), url, label, dataset_name)
+    params = (str(image_id), label, dataset_name, bool(True))
+
     execute_query(query, params)
 
 
 def get_image_metadata_by_uuid(uuid_input):
 
     query = """
-    SELECT id, url, label, dataset_name
+    SELECT id, label, dataset_name
     FROM input_data
     WHERE id = %s;
     """
@@ -74,7 +74,6 @@ def get_image_metadata_by_uuid(uuid_input):
         if result:
             metadata = {
                 "id": result[0],
-                "url": result[1],
                 "label": result[3],
                 "dataset_name": result[4]
             }
@@ -150,7 +149,7 @@ def get_uuids(is_training=True):
 def get_metadata_by_uuids(uuids):
 
     placeholders = ','.join(['%s'] * len(uuids))
-    query = f"SELECT id, url, label, dataset_name FROM input_data WHERE id IN ({
+    query = f"SELECT id, label, dataset_name FROM input_data WHERE id IN ({
         placeholders});"
     try:
         conn, cursor = create_connection()

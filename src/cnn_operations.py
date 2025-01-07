@@ -3,24 +3,49 @@ from save_load_models import load_model_from_keras, save_model
 from evaluate import evaluate_model
 from train import train_model
 from models import build_cnn
-from data_loader import download_and_prepare_dataset
-from app_config import DATASET_PATH, URL_TRAINING_DATA, DATASET_NAME, BATCHE_SIZE, EPOCHS, MODEL_NAME, MODEL_SAVE_PATH
+from db_operations import split_data_into_training_and_testing
+from data_loader import process_and_store_files, clean_up
+from app_config import DATASET_PATH, DATASET_NAME, BATCHE_SIZE, EPOCHS, MODEL_NAME, MODEL_SAVE_PATH
 from datetime import datetime
 import os
 import numpy as np
 import uuid
 import json
+import keras
 import tensorflow as tf
 import wandb
+from PIL import Image
 from wandb.integration.keras import WandbMetricsLogger
 from models import build_model_wandb
 
 
 def download_data():
-
     create_table()
-    os.makedirs(DATASET_PATH, exist_ok=True)
-    download_and_prepare_dataset(URL_TRAINING_DATA, DATASET_NAME)
+    tmp_dir = os.path.join(DATASET_PATH, "tmp")
+    final_dir = os.path.join(DATASET_PATH, DATASET_NAME)
+
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+    x_data = np.concatenate((x_train, x_test), axis=0)
+    y_data = np.concatenate((y_train, y_test), axis=0)
+
+    for idx, (image, label) in enumerate(zip(x_data, y_data)):
+        label_folder = os.path.join(tmp_dir, str(label))
+        os.makedirs(label_folder, exist_ok=True)
+
+        image_path = os.path.join(label_folder, f"{idx}.jpg")
+        img = Image.fromarray(image)
+        img.save(image_path)
+
+    print(f"Data successfully downloaded and saved in '{tmp_dir}'.")
+
+    process_and_store_files(tmp_dir, final_dir)
+
+    split_data_into_training_and_testing()
+
+    clean_up(tmp_dir)
+    print("Temporary files deleted.")
+
     print("Data downloaded and extracted successfully.")
 
 
