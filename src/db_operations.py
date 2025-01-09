@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from db_connection import create_connection
-from app_config import DATASET_PATH, IMAGE_SAVE_PATH
+from app_config import DATASET_PATH, IMAGE_SAVE_PATH, DATASET_NAME
 
 
 def execute_query(query, params=None):
@@ -209,52 +209,54 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=28, img_widt
     return images, labels
 
 
-def fetch_image_metadata():
-    query = """
+def overview_image(output_file="overview.png", img_width=28, img_height=28):
+
+    metadata_query = """
     SELECT DISTINCT ON (label) id, label
     FROM input_data
     """
-    execute_query(query)
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(metadata_query)
+        metadata = cursor.fetchall()
+    except Exception as e:
+        print(f"Error fetching metadata: {e}")
+        return
+    finally:
+        conn.close()
 
+    if not metadata:
+        print("No metadata found.")
+        return
 
-def load_images_and_labels(metadata):
     images = []
     labels = []
-
     for image_id, label in metadata:
-        image_path = os.path.join(DATASET_PATH, f"{image_id}.jpg")
+        image_path = os.path.join(
+            DATASET_PATH, DATASET_NAME, f"{image_id}.jpg")
         if os.path.exists(image_path):
-            img = Image.open(image_path)
-            images.append(np.array(img))
-            labels.append(label)
+            try:
+                img = Image.open(image_path).resize((img_width, img_height))
+                images.append(img)
+                labels.append(label)
+            except Exception as e:
+                print(f"Error loading image {image_id}: {e}")
         else:
-            print(f"Image {image_id} not found at {image_path}, skipping.")
+            print(f"Image path not found for ID {image_id}: {image_path}")
 
-    return images, labels
+    if not images:
+        print("No images loaded.")
+        return
 
-
-def plot_images(images, labels):
     fig, axes = plt.subplots(1, len(images), figsize=(15, 5))
     for i, ax in enumerate(axes):
         ax.imshow(images[i], cmap="gray")
         ax.axis("off")
-        ax.set_title(f"Class: {labels[i]}")
-    return fig
+        ax.set_title(f"Label: {labels[i]}")
 
+    output_path = os.path.join(IMAGE_SAVE_PATH, output_file)
+    os.makedirs(IMAGE_SAVE_PATH, exist_ok=True)
+    fig.savefig(output_path)
+    plt.close(fig)
 
-def save_image_grid(fig, output_file):
-    fig.savefig(output_file)
-    print(f"Saved the image grid to {output_file}.")
-
-
-def load_and_display_images():
-
-    output_dir = IMAGE_SAVE_PATH
-    os.makedirs(output_dir, exist_ok=True)
-
-    metadata = fetch_image_metadata()
-    images, labels = load_images_and_labels(metadata)
-
-    fig = plot_images(images, labels)
-    output_file = os.path.join(output_dir, "class_images.png")
-    save_image_grid(fig, output_file)
+    print(f"Overview image saved at {output_path}")

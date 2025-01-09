@@ -1,11 +1,12 @@
 from cnn_operations import download_data, test_model_func, train_model_wandb
-from db_operations import load_and_display_images
+from db_operations import overview_image
 
 
 def main():
 
-    # download_data()
-    # train_model_wandb()
+    download_data()
+    overview_image()
+    train_model_wandb()
     test_model_func()
 
 
