@@ -1,11 +1,11 @@
 from db_operations import create_table, create_predictions_table, create_connection, get_uuids, load_images_and_labels_by_uuids, get_metadata_by_uuids
 from save_load_models import load_model_from_keras, save_model
-from evaluate import evaluate_model
+from evaluate import evaluate_model, plot_confusion_matrix
 from train import train_model
 from models import build_cnn
 from db_operations import split_data_into_training_and_testing
 from data_loader import process_and_store_files, clean_up
-from app_config import DATASET_PATH, DATASET_NAME, BATCHE_SIZE, EPOCHS, MODEL_NAME, MODEL_SAVE_PATH
+from app_config import DATASET_PATH, DATASET_NAME, MODEL_NAME, MODEL_SAVE_PATH
 from datetime import datetime
 import os
 import numpy as np
@@ -20,9 +20,16 @@ from models import build_model_wandb
 
 
 def download_data():
+
+    final_dir = os.path.join(DATASET_PATH, DATASET_NAME)
+
+    if os.path.exists(final_dir):
+        print(f"The dataset '{
+              DATASET_NAME}' already exists. Skipping download.")
+        return
+
     create_table()
     tmp_dir = os.path.join(DATASET_PATH, "tmp")
-    final_dir = os.path.join(DATASET_PATH, DATASET_NAME)
 
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
@@ -49,78 +56,27 @@ def download_data():
     print("Data downloaded and extracted successfully.")
 
 
-def train_model_func():
-
-    training_uuids = get_uuids(is_training=True)
-    images, labels = load_images_and_labels_by_uuids(
-        training_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
-
-    num_classes = labels.shape[1]
-    input_shape = images.shape[1:]
-
-    model = build_cnn(input_shape=input_shape, num_classes=num_classes)
-    train_model(model, images, labels, BATCHE_SIZE, EPOCHS)
-
-    save_model(model, MODEL_NAME)
-    print("Model saved successfully.")
-
-
 def test_model_func():
-
     testing_uuids = get_uuids(is_training=False)
     model = load_model_from_keras(MODEL_NAME)
-    # check if model is loaded
+
     if not model:
         raise ValueError("Failed to load the model.")
+
     images, labels = load_images_and_labels_by_uuids(
         testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
 
-    evaluate_model(model, images, labels)
+    images = tf.image.rgb_to_grayscale(images).numpy()
+    images = images.reshape(images.shape[0], 28, 28, 1)
 
-
-def classify_image_func():
-
-    create_predictions_table()
-    model = load_model_from_keras(MODEL_NAME)
-    if not model:
-        raise ValueError("Failed to load the model.")
-
-    testing_uuids = get_uuids(is_training=True)
-    images, _ = load_images_and_labels_by_uuids(
-        testing_uuids, os.path.join(DATASET_PATH, DATASET_NAME))
-
-    predictions = model.predict(images)
-    predicted_indices = np.argmax(predictions, axis=1)
-
-    label_names = sorted({row[2]
-                         for row in get_metadata_by_uuids(testing_uuids)})
-    predicted_labels = [label_names[idx] for idx in predicted_indices]
-
-    try:
-        conn, cursor = create_connection()
-        for image_id, predicted_label in zip(testing_uuids, predicted_labels):
-            prediction_id = str(uuid.uuid4())
-            prediction_timestamp = datetime.now()
-
-            query = """
-            INSERT INTO predictions (id, image_id, predicted_label, model_name, prediction_timestamp)
-            VALUES (%s, %s, %s, %s, %s);
-            """
-            cursor.execute(
-                query, (prediction_id, str(image_id), predicted_label,
-                        MODEL_NAME, prediction_timestamp)
-            )
-        conn.commit()
-        print("Predictions stored successfully in the database.")
-    except Exception as e:
-        print(f"Error storing predictions: {e}")
-    finally:
-        conn.close()
+    print(f"Images shape after conversion: {images.shape}")
+    print("Plotting confusion matrix")
+    plot_confusion_matrix(model, images, labels)
 
 
 def preprocess_image(img_path, label, img_height=28, img_width=28):
     img = tf.io.read_file(img_path)
-    img = tf.image.decode_jpeg(img, channels=3)
+    img = tf.image.decode_jpeg(img, channels=1)
     img = tf.image.resize(img, [img_height, img_width])
     img = img / 255.0
     label = tf.cast(label, tf.int32)
@@ -148,6 +104,10 @@ def train_model_wandb():
 
     label_map = fetch_label_map(training_uuids + testing_uuids)
 
+    # Filter out UUIDs that were excluded
+    training_uuids = [uuid for uuid in training_uuids if uuid in label_map]
+    testing_uuids = [uuid for uuid in testing_uuids if uuid in label_map]
+
     train_dataset = create_tf_dataset(
         training_uuids, os.path.join(DATASET_PATH, DATASET_NAME), label_map)
     test_dataset = create_tf_dataset(
@@ -168,12 +128,18 @@ def fetch_label_map(uuids):
     finally:
         conn.close()
 
-    label_map = {row[0]: int(row[1]) for row in rows}
+    valid_rows = [row for row in rows if row[1] != 'unknown']
+    excluded_uuids = [row[0]
+                      for row in rows if row[1] == 'unknown']
+    print(f"Excluded {len(excluded_uuids)
+                      } UUIDs with 'unknown' label: {excluded_uuids}")
+
+    label_map = {row[0]: int(row[1]) for row in valid_rows}
     return label_map
 
 
 def wandb_taining(train_dataset, test_dataset, label_map):
-    # Load architectures from JSON file
+
     with open("architecutres/architectures.json", "r") as file:
         architectures = json.load(file)
 
@@ -181,30 +147,25 @@ def wandb_taining(train_dataset, test_dataset, label_map):
         print(f"Training model: {arch['name']}")
         print(arch)
 
-        # Initialize a new WandB run
         wandb.init(project="cnn-training", name=arch['name'], config=arch)
         config = wandb.config
 
-        # Build the model
         model = build_model_wandb(
             config=config,
-            input_shape=(config.img_height, config.img_width, 3),
+            input_shape=(config.img_height, config.img_width, 1),
             num_classes=len(set(label_map.values()))
         )
 
-        # Define the optimizer
         optimizer = (
             tf.keras.optimizers.Adam(learning_rate=config.learning_rate)
             if config.optimizer == "adam"
             else tf.keras.optimizers.SGD(learning_rate=config.learning_rate)
         )
 
-        # Compile the model
         model.compile(optimizer=optimizer,
                       loss="sparse_categorical_crossentropy",
                       metrics=['accuracy'])
 
-        # Train the model
         history = model.fit(
             train_dataset,
             validation_data=test_dataset,
@@ -212,14 +173,12 @@ def wandb_taining(train_dataset, test_dataset, label_map):
             callbacks=[WandbMetricsLogger()]
         )
 
-        # Evaluate the model
         loss, accuracy = model.evaluate(test_dataset)
         print(f"Model: {arch['name']} - Loss: {loss}, Accuracy: {accuracy}")
 
-        # Save the model
-        model_dir = os.path.join(MODEL_SAVE_PATH, arch['name'])
+        model_dir = os.path.join(MODEL_SAVE_PATH)
         os.makedirs(model_dir, exist_ok=True)
-        model_path = os.path.join(model_dir, f"{arch['name']}_model.keras")
+        model_path = os.path.join(model_dir, f"{arch['name']}.keras")
         model.save(model_path)
         wandb.save(model_path)
         wandb.finish()

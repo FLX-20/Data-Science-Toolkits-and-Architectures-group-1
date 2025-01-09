@@ -1,6 +1,6 @@
 [
     {
-      "name": "simple_cnn",
+      "name": "mnist_cnn",
       "conv_layers": 2,
       "conv_filters": [32, 64],
       "kernel_sizes": [[3, 3], [3, 3]],

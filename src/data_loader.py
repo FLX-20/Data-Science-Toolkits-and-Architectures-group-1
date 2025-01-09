@@ -105,24 +105,3 @@ def load_dataset(dataset_name, is_training=True, img_height=28, img_width=28):
         raise RuntimeError(f"Error loading dataset: {e}")
     finally:
         conn.close()
-
-
-def show_loaded_images(images, labels, class_names, num_images=9, filename="examples_images.jpg"):
-
-    os.makedirs(IMAGE_SAVE_PATH, exist_ok=True)
-    file_path = os.path.join(IMAGE_SAVE_PATH, filename)
-
-    if len(images) < num_images:
-        num_images = len(images)
-
-    random_indices = random.sample(range(len(images)), num_images)
-
-    plt.figure(figsize=(10, 10))
-    for i, idx in enumerate(random_indices):
-        ax = plt.subplot(3, 3, i + 1)
-        plt.imshow(images[idx])
-        plt.title(class_names[np.argmax(labels[idx])])
-        plt.axis("off")
-    plt.savefig(file_path)
-    print(f"Overview of input_data and their classes are stored in {
-          file_path}")

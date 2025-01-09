@@ -3,8 +3,11 @@ import psycopg2
 import random
 import numpy as np
 import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
 from PIL import Image
 from db_connection import create_connection
+from app_config import DATASET_PATH, IMAGE_SAVE_PATH
 
 
 def execute_query(query, params=None):
@@ -161,7 +164,7 @@ def get_metadata_by_uuids(uuids):
         conn.close()
 
 
-def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_width=180):
+def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=28, img_width=28):
 
     images = []
     labels = []
@@ -206,16 +209,52 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_wid
     return images, labels
 
 
-def show_image(file_path):
+def fetch_image_metadata():
+    query = """
+    SELECT DISTINCT ON (label) id, label
+    FROM input_data
+    """
+    execute_query(query)
 
-    if not os.path.exists(file_path):
-        print(f"Image file does not exist at path: {file_path}")
-        return None
 
-    try:
-        image = Image.open(file_path)
-        print(f"Image successfully loaded from {file_path}.")
-        return image
-    except Exception as error:
-        print(f"Error loading image from {file_path}: {error}")
-        return None
+def load_images_and_labels(metadata):
+    images = []
+    labels = []
+
+    for image_id, label in metadata:
+        image_path = os.path.join(DATASET_PATH, f"{image_id}.jpg")
+        if os.path.exists(image_path):
+            img = Image.open(image_path)
+            images.append(np.array(img))
+            labels.append(label)
+        else:
+            print(f"Image {image_id} not found at {image_path}, skipping.")
+
+    return images, labels
+
+
+def plot_images(images, labels):
+    fig, axes = plt.subplots(1, len(images), figsize=(15, 5))
+    for i, ax in enumerate(axes):
+        ax.imshow(images[i], cmap="gray")
+        ax.axis("off")
+        ax.set_title(f"Class: {labels[i]}")
+    return fig
+
+
+def save_image_grid(fig, output_file):
+    fig.savefig(output_file)
+    print(f"Saved the image grid to {output_file}.")
+
+
+def load_and_display_images():
+
+    output_dir = IMAGE_SAVE_PATH
+    os.makedirs(output_dir, exist_ok=True)
+
+    metadata = fetch_image_metadata()
+    images, labels = load_images_and_labels(metadata)
+
+    fig = plot_images(images, labels)
+    output_file = os.path.join(output_dir, "class_images.png")
+    save_image_grid(fig, output_file)
