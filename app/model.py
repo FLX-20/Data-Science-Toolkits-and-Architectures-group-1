@@ -4,7 +4,7 @@ import numpy as np
 
 def load_model():
     try:
-        return tf.keras.models.load_model('models/mnist_cnn_model.keras')
+        return tf.keras.models.load_model('models/mnist_cnn.keras')
     except Exception as e:
         raise RuntimeError(f"Error loading model: {e}")
 
