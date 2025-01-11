@@ -1,11 +1,9 @@
 import uuid
 import shutil
-import random
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
 import os
-from app_config import DATASET_PATH, IMAGE_SAVE_PATH, DATASET_NAME
+from app_config import DATASET_PATH, DATASET_NAME
 from db_operations import insert_image_metadata, create_connection
 
 
@@ -64,9 +62,7 @@ def preprocess_images_and_labels(dataset, num_classes):
 
 
 def load_dataset(dataset_name, is_training=True, img_height=28, img_width=28):
-    """
-    Loads dataset based on training/testing flag.
-    """
+
     data_path = os.path.join(DATASET_PATH, dataset_name)
     if not os.path.exists(data_path):
         raise ValueError(f"Invalid directory: {data_path}")

@@ -6,11 +6,12 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir --default-timeout=10000000 --require-hashes -r requirements.txt
+COPY . .
+RUN pip install --no-cache-dir --default-timeout=10000000 -r requirements.txt
 
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Set the entrypoint script
-ENTRYPOINT ["sh", "scripts/entrypoint.sh"]
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:create_app()"]

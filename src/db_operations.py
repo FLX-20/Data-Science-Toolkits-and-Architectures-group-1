@@ -209,6 +209,28 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=28, img_widt
     return images, labels
 
 
+def fetch_label_map(uuids):
+    placeholders = ','.join(['%s'] * len(uuids))
+    query = f"SELECT id, label FROM input_data WHERE id IN ({placeholders});"
+    try:
+        conn, cursor = create_connection()
+        cursor.execute(query, tuple(uuids))
+        rows = cursor.fetchall()
+    except Exception as e:
+        raise RuntimeError(f"Error fetching image labels: {e}")
+    finally:
+        conn.close()
+
+    valid_rows = [row for row in rows if row[1] != 'unknown']
+    excluded_uuids = [row[0]
+                      for row in rows if row[1] == 'unknown']
+    print(f"Excluded {len(excluded_uuids)
+                      } UUIDs with 'unknown' label: {excluded_uuids}")
+
+    label_map = {row[0]: int(row[1]) for row in valid_rows}
+    return label_map
+
+
 def overview_image(output_file="overview.png", img_width=28, img_height=28):
 
     metadata_query = """

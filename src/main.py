@@ -4,9 +4,9 @@ from db_operations import overview_image
 
 def main():
 
-    download_data()
-    overview_image()
-    train_model_wandb()
+    # download_data()
+    # overview_image()
+    # train_model_wandb()
     test_model_func()
 
 

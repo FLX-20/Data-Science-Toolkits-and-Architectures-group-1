@@ -1,15 +1,11 @@
-from db_operations import create_table, create_predictions_table, create_connection, get_uuids, load_images_and_labels_by_uuids, get_metadata_by_uuids
+from db_operations import create_table, create_predictions_table, get_uuids, load_images_and_labels_by_uuids, fetch_label_map
 from save_load_models import load_model_from_keras, save_model
 from evaluate import evaluate_model, plot_confusion_matrix
-from train import train_model
-from models import build_cnn
 from db_operations import split_data_into_training_and_testing
 from data_loader import process_and_store_files, clean_up
-from app_config import DATASET_PATH, DATASET_NAME, MODEL_NAME, MODEL_SAVE_PATH
-from datetime import datetime
+from app_config import DATASET_PATH, DATASET_NAME, MODEL_NAME
 import os
 import numpy as np
-import uuid
 import json
 import keras
 import tensorflow as tf
@@ -29,6 +25,7 @@ def download_data():
         return
 
     create_table()
+    create_predictions_table()
     tmp_dir = os.path.join(DATASET_PATH, "tmp")
 
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -71,6 +68,7 @@ def test_model_func():
 
     print(f"Images shape after conversion: {images.shape}")
     print("Plotting confusion matrix")
+    evaluate_model(model, images, labels)
     plot_confusion_matrix(model, images, labels)
 
 
@@ -116,28 +114,6 @@ def train_model_wandb():
     wandb_taining(train_dataset, test_dataset, label_map)
 
 
-def fetch_label_map(uuids):
-    placeholders = ','.join(['%s'] * len(uuids))
-    query = f"SELECT id, label FROM input_data WHERE id IN ({placeholders});"
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query, tuple(uuids))
-        rows = cursor.fetchall()
-    except Exception as e:
-        raise RuntimeError(f"Error fetching image labels: {e}")
-    finally:
-        conn.close()
-
-    valid_rows = [row for row in rows if row[1] != 'unknown']
-    excluded_uuids = [row[0]
-                      for row in rows if row[1] == 'unknown']
-    print(f"Excluded {len(excluded_uuids)
-                      } UUIDs with 'unknown' label: {excluded_uuids}")
-
-    label_map = {row[0]: int(row[1]) for row in valid_rows}
-    return label_map
-
-
 def wandb_taining(train_dataset, test_dataset, label_map):
 
     with open("architecutres/architectures.json", "r") as file:
@@ -176,9 +152,11 @@ def wandb_taining(train_dataset, test_dataset, label_map):
         loss, accuracy = model.evaluate(test_dataset)
         print(f"Model: {arch['name']} - Loss: {loss}, Accuracy: {accuracy}")
 
-        model_dir = os.path.join(MODEL_SAVE_PATH)
-        os.makedirs(model_dir, exist_ok=True)
-        model_path = os.path.join(model_dir, f"{arch['name']}.keras")
-        model.save(model_path)
-        wandb.save(model_path)
+        save_model(model, arch['name'])
+
+        # model_dir = os.path.join(MODEL_SAVE_PATH)
+        # os.makedirs(model_dir, exist_ok=True)
+        # model_path = os.path.join(model_dir, f"{arch['name']}.keras")
+        # model.save(model_path)
+        # wandb.save(model_path)
         wandb.finish()

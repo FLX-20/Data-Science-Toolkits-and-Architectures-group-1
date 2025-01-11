@@ -1,4 +1,5 @@
 import os
+import wandb
 import tensorflow as tf
 from app_config import MODEL_SAVE_PATH
 
@@ -22,4 +23,5 @@ def save_model(model, model_name):
     model_file_path = os.path.join(MODEL_SAVE_PATH, model_name + ".keras")
 
     model.save(model_file_path)
+    wandb.save(model_file_path)
     print(f"Model saved successfully at {model_file_path}")
