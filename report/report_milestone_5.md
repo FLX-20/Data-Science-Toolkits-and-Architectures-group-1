@@ -100,3 +100,26 @@ The final flow of requests from our understanding is as:
 - Then, in the end, nginx forwards the response to the client
 
 ## Task 4 Bringing Everything together 
+Additionally, our existing backend had to be adjusted to meet the requirements of the last milestone. We initially expected to obtain an unknown dataset from the web, which contained images that we needed to classify using our CNN architecture. However, it turned out that the final goal was much simpler and focused on the MNIST dataset, which is already included in the Keras library. Consequently, there was no need for direct downloads from the web, making the download and unzip procedures unnecessary. As a result, we decided to delete the related functions.   
+One could argue for keeping this function in the code for future modifications, but we believe that code not contributing to the production version should be excluded, as it can introduce potential errors.   
+Furthermore, all classification functions were deleted and moved to the front-end Flask application. The backend now solely concentrates on training the CNN and saving the images along with their metadata in the database. These deletions of unnecessary functions significantly simplified the backend.
+
+In this backend adjustment process, one performance issue from the last milestone was identified. In previous code versions, images were used for training and testing almost immediately after being loaded, without much preprocessing. This approach worked well with the smaller animal training dataset (consisting of 300 cats, 300 dogs, and 300 snakes), but it caused program crashes when using the MNIST dataset, which contains 70,000 images.  
+To address this issue, we created a TensorFlow dataset that randomly shuffles the training data, batches the dataset for more efficient processing, and prefetches data to enhance performance during training. This implementation helps prevent crashes and speeds up the training process.
+
+When adjusting the backend, it is important to consider how to handle newly added, unlabeled data. This data is provided by users, either through uploads on the website or via the API. Like any other data, it is added to the `input_data` and `prediction` tables.   
+For this data, the label is defined as "unknown." To observe all user-uploaded data, you can use the following SQL command:
+```sql
+SELECT * FROM input_data WHERE label = 'unknown'
+```
+After identifying the unlabeled data, you can manually label the newly provided data to increase the training dataset size. However, the column `is_training` contains a binary value, where `TRUE` (1) indicates that all newly added data is automatically classified as training data. This approach can lead to issues because the algorithm expects 10 classes, not 11 (with "unknown" being the 11th class), and does not know how to handle the "unknown" class. Therefore, it is necessary to filter out all rows labeled as "unknown" beforehand.  
+This filtering can be achieved with the function `fetch_label_map()`, which retrieves and processes label information for a specified set of UUIDs while excluding any invalid entries with the label "unknown." This ensures that only valid data (i.e., those with non-unknown labels) is used for model training or evaluation.  
+Subsequently, the model training is performed using the weights and bias procedure developed in the previous milestone. Additionally, a confusion matrix is generated for the final model, along with an overview image of all classes. Both of these images are saved in the `images` directory. The trained model is stored in the `models` directory, from which it is loaded by the Flask application.
+
+## Task 5 Limitation of the project
+One significant downside of the current application is that it allows any kind of image to be uploaded, including non-digit images, such as pictures of cats and dogs. However, the forward-passing classification algorithm of the Convolutional Neural Network (CNN) will always classify each image as one of ten digits, regardless of the content. As a result, it is possible for a cat image to be classified as a "9" because, in the world of the CNN, there are only digits and no cats.  
+This is a well-known problem in the field of Data Science. For this reason, various researchers have introduced different methods of uncertainty measurement. Uncertainty measures can help identify situations where the model is unsure about its prediction, such as when it encounters a cat image but has only been trained on digit images. This understanding is crucial to avoid naive decision-making that could lead to severe consequences.  
+An excellent overview of this topic was provided by [Jakob Gawlikowski](https://arxiv.org/abs/2107.03342) and his colleagues, who introduced multiple strategies to address this issue in their paper.
+
+## Appreciation
+As we reach the final milestone of this subject, we would like to take this opportunity to thank you for your efforts in designing and providing this course. It has provided valuable hands-on experience in setting up a data science application and has conveyed essential knowledge that can serve as a foundation for future private projects.
