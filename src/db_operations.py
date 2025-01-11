@@ -3,8 +3,11 @@ import psycopg2
 import random
 import numpy as np
 import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
 from PIL import Image
 from db_connection import create_connection
+from app_config import DATASET_PATH, IMAGE_SAVE_PATH, DATASET_NAME
 
 
 def execute_query(query, params=None):
@@ -25,10 +28,9 @@ def create_table():
     query = """
     CREATE TABLE IF NOT EXISTS input_data (
         id UUID PRIMARY KEY,
-        url TEXT NOT NULL,
         label TEXT NOT NULL,
         dataset_name TEXT NOT NULL,
-        is_training BOOLEAN NOT NULL DEFAULT TRUE
+        is_training BOOLEAN DEFAULT TRUE
     );
     """
     execute_query(query)
@@ -48,20 +50,21 @@ def create_predictions_table():
     execute_query(query)
 
 
-def insert_image_metadata(image_id, url, label, dataset_name):
+def insert_image_metadata(image_id, label, dataset_name):
 
     query = """
-    INSERT INTO input_data (id, url, label, dataset_name)
+    INSERT INTO input_data (id, label, dataset_name, is_training)
     VALUES (%s, %s, %s, %s)
     """
-    params = (str(image_id), url, label, dataset_name)
+    params = (str(image_id), label, dataset_name, bool(True))
+
     execute_query(query, params)
 
 
 def get_image_metadata_by_uuid(uuid_input):
 
     query = """
-    SELECT id, url, label, dataset_name
+    SELECT id, label, dataset_name
     FROM input_data
     WHERE id = %s;
     """
@@ -74,7 +77,6 @@ def get_image_metadata_by_uuid(uuid_input):
         if result:
             metadata = {
                 "id": result[0],
-                "url": result[1],
                 "label": result[3],
                 "dataset_name": result[4]
             }
@@ -150,7 +152,7 @@ def get_uuids(is_training=True):
 def get_metadata_by_uuids(uuids):
 
     placeholders = ','.join(['%s'] * len(uuids))
-    query = f"SELECT id, url, label, dataset_name FROM input_data WHERE id IN ({
+    query = f"SELECT id, label, dataset_name FROM input_data WHERE id IN ({
         placeholders});"
     try:
         conn, cursor = create_connection()
@@ -162,7 +164,7 @@ def get_metadata_by_uuids(uuids):
         conn.close()
 
 
-def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_width=180):
+def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=28, img_width=28):
 
     images = []
     labels = []
@@ -183,7 +185,7 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_wid
     for uuid, label in rows:
         img_path = os.path.join(dataset_path, f"{uuid}.jpg")
         if not os.path.exists(img_path):
-            print(f"Image not found for UUID {uuid}, skipping.")
+            print(f"Image has not been found for UUID {uuid}, skipping.")
             continue
 
         # Load and preprocess the image
@@ -207,16 +209,54 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=180, img_wid
     return images, labels
 
 
-def show_image(file_path):
+def overview_image(output_file="overview.png", img_width=28, img_height=28):
 
-    if not os.path.exists(file_path):
-        print(f"Image file does not exist at path: {file_path}")
-        return None
-
+    metadata_query = """
+    SELECT DISTINCT ON (label) id, label
+    FROM input_data
+    """
     try:
-        image = Image.open(file_path)
-        print(f"Image successfully loaded from {file_path}.")
-        return image
-    except Exception as error:
-        print(f"Error loading image from {file_path}: {error}")
-        return None
+        conn, cursor = create_connection()
+        cursor.execute(metadata_query)
+        metadata = cursor.fetchall()
+    except Exception as e:
+        print(f"Error fetching metadata: {e}")
+        return
+    finally:
+        conn.close()
+
+    if not metadata:
+        print("No metadata found.")
+        return
+
+    images = []
+    labels = []
+    for image_id, label in metadata:
+        image_path = os.path.join(
+            DATASET_PATH, DATASET_NAME, f"{image_id}.jpg")
+        if os.path.exists(image_path):
+            try:
+                img = Image.open(image_path).resize((img_width, img_height))
+                images.append(img)
+                labels.append(label)
+            except Exception as e:
+                print(f"Error loading image {image_id}: {e}")
+        else:
+            print(f"Image path not found for ID {image_id}: {image_path}")
+
+    if not images:
+        print("No images loaded.")
+        return
+
+    fig, axes = plt.subplots(1, len(images), figsize=(15, 5))
+    for i, ax in enumerate(axes):
+        ax.imshow(images[i], cmap="gray")
+        ax.axis("off")
+        ax.set_title(f"Label: {labels[i]}")
+
+    output_path = os.path.join(IMAGE_SAVE_PATH, output_file)
+    os.makedirs(IMAGE_SAVE_PATH, exist_ok=True)
+    fig.savefig(output_path)
+    plt.close(fig)
+
+    print(f"Overview image saved at {output_path}")
