@@ -1,5 +1,9 @@
 # Milestone 5
-
+In the beginning, the fifth milestone was divided into two main tasks. 
+The first task involved developing the Flask application, which includes both the API and the web frontend. This is described in detail in chapters two and three.  
+The second part of the milestone focused on adjusting the backend, which was developed over the previous four milestones. Our backend was designed to classify any image dataset from external sources. However, for the current milestone, we only need to classify the MNIST images, which are already included in the Keras package.   
+Thus, the entire codebase can be simplified since all functions related to reading external data are no longer necessary. If those functions are needed again, they can be retrieved from the git history. This decision was made to make the application as lightweight as possible and avoid unnecessary code that does not contribute to the productive code.  
+Additionally, the Flask application and the modified backend are merged in the end to create a coherent web application consisting of several containers.
 ## Task 1 Flask Tutorial
 
 ## Task 2 Flask Application
@@ -64,6 +68,8 @@ The process begins by calling the `decode_image` function, which converts the up
 Following the image processing, the `model_predict` function is called to generate a prediction. The metadata of the image is then stored in the `input_data` table of the database. Next, the `save_image_with_uuid` function is invoked to save the image on the server, using the same UUID as its corresponding metadata in the database.
 
 Finally, the prediction is saved in the `prediction` table of the database. At the end of the process, the function returns the prediction alongside the path to the saved image.
+
+
 
 ## Task 3 Frontend
 The frontend presented to the user is defined in the `index.html` file located in the `templates` directory. This file make use of the Bootstrap framework for styling and layout, which provides a variety of pre-styled components and a responsive grid system. The decision to use Bootstrap was made, because of prior experience with the framework from past projects.    
