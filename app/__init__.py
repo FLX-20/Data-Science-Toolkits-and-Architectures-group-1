@@ -50,8 +50,8 @@ def initialize_database(app):
             except Exception as e:
                 retries -= 1
                 logging.warning(f"Database connection failed: {
-                                e}. Retrying in 5 seconds...")
-                time.sleep(5)
+                                e}. Retrying in 10 seconds...")
+                time.sleep(10)
         else:
             logging.error(
                 "Failed to initialize the database after multiple retries.")

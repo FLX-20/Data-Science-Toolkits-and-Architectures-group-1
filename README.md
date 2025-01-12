@@ -2,7 +2,7 @@
 
 ## Project Overview
 This repository contains the code and resources for the subject "Data Science Toolkits and Architectures" at the University of Lucerne.
-The final result of this project is a multicontainer Flask web application for classifying digits using PostgreSQL, keras, tensorflow, docker, weights and biases, docker-compose, nginx, gunicorn and git.
+The final result of this project is a multi-container Flask web application for classifying digits using PostgreSQL, Keras, TensorFlow, docker, weights and biases, docker-compose, nginx, gunicorn and git.
 
 ## Prerequisites
 - Git 2.43.0
@@ -12,7 +12,7 @@ The final result of this project is a multicontainer Flask web application for c
 ## Executing the Code
 The entire code can be executed using the following command in the CLI, provided it is executed in the root directory of the cloned repository:
 ```shell
-docker compose up
+docker-compose up
 ```
 After executing this command, the Flask web application is started. This application can be accessed at the following URL: `localhost:8080`.
 Additionally, you can send images to the API with a `POST` request to the application, for example using [postman](https://www.postman.com/) which returns the predicted value in JSON format.  

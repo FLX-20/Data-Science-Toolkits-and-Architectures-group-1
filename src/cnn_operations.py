@@ -1,4 +1,4 @@
-from db_operations import create_table, create_predictions_table, get_uuids, load_images_and_labels_by_uuids, fetch_label_map
+from db_operations import get_uuids, load_images_and_labels_by_uuids, fetch_label_map
 from save_load_models import load_model_from_keras, save_model
 from evaluate import evaluate_model, plot_confusion_matrix
 from db_operations import split_data_into_training_and_testing
@@ -24,8 +24,6 @@ def download_data():
               DATASET_NAME}' already exists. Skipping download.")
         return
 
-    create_table()
-    create_predictions_table()
     tmp_dir = os.path.join(DATASET_PATH, "tmp")
 
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -153,10 +151,4 @@ def wandb_taining(train_dataset, test_dataset, label_map):
         print(f"Model: {arch['name']} - Loss: {loss}, Accuracy: {accuracy}")
 
         save_model(model, arch['name'])
-
-        # model_dir = os.path.join(MODEL_SAVE_PATH)
-        # os.makedirs(model_dir, exist_ok=True)
-        # model_path = os.path.join(model_dir, f"{arch['name']}.keras")
-        # model.save(model_path)
-        # wandb.save(model_path)
         wandb.finish()

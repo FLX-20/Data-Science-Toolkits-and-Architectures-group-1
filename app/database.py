@@ -1,8 +1,7 @@
 from . import db
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class InputData(db.Model):
@@ -20,4 +19,5 @@ class Predictions(db.Model):
         'input_data.id', ondelete='CASCADE'), nullable=False)
     predicted_label = db.Column(db.String, nullable=False)
     model_name = db.Column(db.String, nullable=False)
-    prediction_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    prediction_timestamp = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
