@@ -5,6 +5,14 @@ The second part of the milestone focused on adjusting the backend, which was dev
 Thus, the entire codebase can be simplified since all functions related to reading external data are no longer necessary. If those functions are needed again, they can be retrieved from the git history. This decision was made to make the application as lightweight as possible and avoid unnecessary code that does not contribute to the productive code.  
 Additionally, the Flask application and the modified backend are merged in the end to create a coherent web application consisting of several containers.
 ## Task 1 Flask Tutorial
+We performed the 
+[tutorial] (https://www.digitalocean.com/community/tutorials/how-to-build-and-deploy-a-flask-application-using-docker-on-ubuntu-18-04) 
+given in Task 1 of milestone 5 in an Ubuntu shell. The version of Ubuntu that we used is 22.04.3. When deploying a 
+Flask application with Docker allows us to replicate an application across different servers. During this 
+tutorial, we have created and deployed a Flask application to a Docker container. Furthermore, we configured the 
+`touch-reload` command to refresh the application without starting the container. 
+However, the provided tutorial was not enough to build the Flask web application. 
+Even with pre-knowledge in Flask, it was necessary to look things up in the [flask documentation](https://flask.palletsprojects.com/en/stable/) as well as refresh the knowledge with other tutorials. The best tutorial, which included most of the knowledge needed to succeed in this project was found on YouTube on the channel [Caleb Curry](https://www.youtube.com/watch?v=qbLc5a9jdXo), which explains the REST API understandably and also builds a Flask application to describes it. 
 
 ## Task 2 Flask Application
 The Flask Application was developed independently of the existing backend in a separate container because it only uses the pre-trained model and the existing database. 
