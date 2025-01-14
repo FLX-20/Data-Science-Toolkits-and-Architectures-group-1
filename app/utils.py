@@ -18,9 +18,9 @@ def process_image_and_predict(img, model):
     prediction = model_predict(model, image_array)
 
     new_input = InputData(
-        label="unknown",
+        label="0",
         dataset_name="MNIST",
-        is_training=False
+        is_training=2
     )
     db.session.add(new_input)
     db.session.commit()
@@ -52,13 +52,19 @@ def allowed_file(filename):
 
 
 def save_image_with_uuid(image_array, uuid):
-    save_dir = os.path.join('app', 'static', 'datasets', 'MNIST')
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
+    save_dir_web = os.path.join('app', 'static', 'datasets', 'MNIST')
+    save_dir_app = os.path.join('datasets', 'MNIST')
+    if not os.path.exists(save_dir_web):
+        os.makedirs(save_dir_web)
+    if not os.path.exists(save_dir_app):
+        os.makedirs(save_dir_app)
 
     filename = f"{uuid}.jpg"
-    file_path = os.path.join(save_dir, filename)
+    file_path_web = os.path.join(save_dir_web, filename)
+    file_path_app = os.path.join(save_dir_app, filename)
     Image.fromarray((image_array * 255).astype('uint8')
-                    ).convert('L').save(file_path)
+                    ).convert('L').save(file_path_web)
+    Image.fromarray((image_array * 255).astype('uint8')
+                    ).convert('L').save(file_path_app)
 
     return os.path.join('static', 'datasets', 'MNIST', filename)

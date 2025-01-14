@@ -17,7 +17,7 @@ def create_connection():
             return conn, cursor
         except Exception as error:
             logging.error(f"Error connecting to the database: {error}")
-            time.sleep(10)
+            time.sleep(5)
     logging.critical("Database connection failed after retries.")
     raise ConnectionError(
         "Unable to establish database connection after retries.")

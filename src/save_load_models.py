@@ -1,6 +1,6 @@
 import os
-import wandb
 import tensorflow as tf
+import wandb
 from app_config import MODEL_SAVE_PATH
 
 

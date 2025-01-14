@@ -1,10 +1,50 @@
+import os
 import uuid
 import shutil
+import keras
+from PIL import Image
 import tensorflow as tf
 import numpy as np
-import os
+from db_operations import split_data_into_training_and_testing, insert_image_metadata, create_connection, split_data_into_training_and_testing
 from app_config import DATASET_PATH, DATASET_NAME
-from db_operations import insert_image_metadata, create_connection
+
+
+def download_data():
+
+    final_dir = os.path.join(DATASET_PATH, DATASET_NAME)
+
+    if os.path.exists(final_dir):
+        print(f"The dataset '{
+              DATASET_NAME}' already exists. Skipping download.")
+        return
+
+    tmp_dir = os.path.join(DATASET_PATH, "tmp")
+
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+    x_data = np.concatenate((x_train, x_test), axis=0)
+    y_data = np.concatenate((y_train, y_test), axis=0)
+
+    for idx, (image, label) in enumerate(zip(x_data, y_data)):
+        label_folder = os.path.join(tmp_dir, str(label))
+        os.makedirs(label_folder, exist_ok=True)
+
+        image_path = os.path.join(label_folder, f"{idx}.jpg")
+        img = Image.fromarray(image)
+        img.save(image_path)
+
+    print(f"Data successfully downloaded and saved in '{tmp_dir}'.")
+
+    process_and_store_files(tmp_dir, final_dir)
+    print("Data successfully processed and stored in the database.")
+
+    split_data_into_training_and_testing()
+    print("Data successfully split into training and testing with balanced classes.")
+
+    clean_up(tmp_dir)
+    print("Temporary files deleted.")
+
+    print("Data downloaded and extracted successfully.")
 
 
 def clean_up(folder_path):
@@ -35,7 +75,8 @@ def process_and_store_files(tmp_dir, final_dir):
                     insert_image_metadata(
                         image_id=unique_id,
                         label=label,
-                        dataset_name=DATASET_NAME
+                        dataset_name=DATASET_NAME,
+                        is_training=1
                     )
 
     except Exception as e:
@@ -61,7 +102,7 @@ def preprocess_images_and_labels(dataset, num_classes):
     return images, labels
 
 
-def load_dataset(dataset_name, is_training=True, img_height=28, img_width=28):
+def load_dataset(dataset_name, is_training=1, img_height=28, img_width=28):
 
     data_path = os.path.join(DATASET_PATH, dataset_name)
     if not os.path.exists(data_path):

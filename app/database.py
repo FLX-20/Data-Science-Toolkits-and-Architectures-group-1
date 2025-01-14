@@ -7,9 +7,9 @@ from datetime import datetime, timezone
 class InputData(db.Model):
     __tablename__ = 'input_data'
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    label = db.Column(db.String, nullable=False, default="unknown")
-    dataset_name = db.Column(db.String, nullable=False, default="MNIST")
-    is_training = db.Column(db.Boolean, nullable=False, default=False)
+    label = db.Column(db.Text, nullable=False, default="unknown")
+    dataset_name = db.Column(db.Text, nullable=False, default="MNIST")
+    is_training = db.Column(db.SmallInteger, nullable=False, default=1)
 
 
 class Predictions(db.Model):

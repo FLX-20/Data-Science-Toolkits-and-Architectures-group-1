@@ -3,19 +3,22 @@ import psycopg2
 import random
 import numpy as np
 import tensorflow as tf
-import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from db_connection import create_connection
 from app_config import DATASET_PATH, IMAGE_SAVE_PATH, DATASET_NAME
 
 
-def execute_query(query, params=None):
-
+def execute_query(query, params=None, fetch=False, fetchone=False):
     try:
         conn, cursor = create_connection()
         with conn, conn.cursor() as cursor:
             cursor.execute(query, params)
+            if fetchone:
+                return cursor.fetchone()
+            if fetch:
+                return cursor.fetchall()
+            conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print(f"Error executing query: {error}")
     finally:
@@ -24,20 +27,18 @@ def execute_query(query, params=None):
 
 
 def create_table():
-
     query = """
     CREATE TABLE IF NOT EXISTS input_data (
         id UUID PRIMARY KEY,
         label TEXT NOT NULL,
         dataset_name TEXT NOT NULL,
-        is_training BOOLEAN DEFAULT TRUE
+        is_training SMALLINT DEFAULT 1
     );
     """
     execute_query(query)
 
 
 def create_predictions_table():
-
     query = """
     CREATE TABLE IF NOT EXISTS predictions (
         id UUID PRIMARY KEY,
@@ -50,145 +51,89 @@ def create_predictions_table():
     execute_query(query)
 
 
-def insert_image_metadata(image_id, label, dataset_name):
-
+def insert_image_metadata(image_id, label, dataset_name, is_training):
     query = """
     INSERT INTO input_data (id, label, dataset_name, is_training)
     VALUES (%s, %s, %s, %s)
     """
-    params = (str(image_id), label, dataset_name, bool(True))
-
+    params = (str(image_id), label, dataset_name, is_training)
     execute_query(query, params)
 
 
 def get_image_metadata_by_uuid(uuid_input):
-
     query = """
     SELECT id, label, dataset_name
     FROM input_data
     WHERE id = %s;
     """
-    try:
-        conn, cursor = create_connection()
-
-        cursor.execute(query, (uuid_input,))
-        result = cursor.fetchone()
-
-        if result:
-            metadata = {
-                "id": result[0],
-                "label": result[3],
-                "dataset_name": result[4]
-            }
-            return metadata
-        else:
-            print(f"No metadata found for UUID {uuid_input}")
-            return None
-
-    except Exception as error:
-        print(f"Error retrieving metadata for UUID {uuid_input}: {error}")
-        return None
-    finally:
-        conn.close()
+    result = execute_query(query, (uuid_input,), fetchone=True)
+    if result:
+        return {"id": result[0], "label": result[1], "dataset_name": result[2]}
+    print(f"No metadata found for UUID {uuid_input}")
+    return None
 
 
 def split_data_into_training_and_testing(validation_split=0.2, seed=24):
+    query = "SELECT id, label FROM input_data WHERE is_training = 1 OR is_training = 0;"
+    data = execute_query(query, fetch=True)
 
-    query = """
-    SELECT id, label FROM input_data
-    """
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query)
-        data = cursor.fetchall()
+    from collections import defaultdict
+    class_groups = defaultdict(list)
+    for ids, class_label in data:
+        class_groups[class_label].append(ids)
 
-        # Group ids by class label
-        from collections import defaultdict
-        class_groups = defaultdict(list)
-        for id_, class_label in data:
-            class_groups[class_label].append(id_)
+    training_ids = []
+    testing_ids = []
 
-        training_ids = []
-        testing_ids = []
+    random.seed(seed)
+    for ids in class_groups.values():
+        random.shuffle(ids)
+        split_idx = int(len(ids) * (1 - validation_split))
+        training_ids.extend(ids[:split_idx])
+        testing_ids.extend(ids[split_idx:])
 
-        random.seed(seed)
-        for class_label, ids in class_groups.items():
-            random.shuffle(ids)
-            split_idx = int(len(ids) * (1 - validation_split))
-            training_ids.extend(ids[:split_idx])
-            testing_ids.extend(ids[split_idx:])
+    print(f"Training data: {len(training_ids)}")
+    print(f"Testing data: {len(testing_ids)}")
 
-        # Update the database
-        cursor.executemany(
-            "UPDATE input_data SET is_training = TRUE WHERE id = %s;",
-            [(id_,) for id_ in training_ids]
-        )
-        cursor.executemany(
-            "UPDATE input_data SET is_training = FALSE WHERE id = %s;",
-            [(id_,) for id_ in testing_ids]
-        )
-        conn.commit()
-        print("Data successfully split into training and testing with balanced classes.")
-    except Exception as e:
-        print(f"Error during data split: {e}")
-    finally:
-        conn.close()
+    execute_query(
+        "UPDATE input_data SET is_training = 1 WHERE id = ANY(%s::uuid[]);",
+        (training_ids,)
+    )
+    execute_query(
+        "UPDATE input_data SET is_training = 0 WHERE id = ANY(%s::uuid[]);",
+        (testing_ids,)
+    )
+
+    print("Data successfully split into training and testing with balanced classes.")
 
 
-def get_uuids(is_training=True):
-
+def get_uuids(is_training=1):
     query = "SELECT id FROM input_data WHERE is_training = %s;"
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query, (is_training,))
-        rows = cursor.fetchall()
-        return [row[0] for row in rows]
-    except Exception as e:
-        raise RuntimeError(f"Error fetching UUIDs: {e}")
-    finally:
-        conn.close()
+    rows = execute_query(query, (is_training,), fetch=True)
+    return [row[0] for row in rows]
 
 
 def get_metadata_by_uuids(uuids):
-
     placeholders = ','.join(['%s'] * len(uuids))
     query = f"SELECT id, label, dataset_name FROM input_data WHERE id IN ({
         placeholders});"
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query, tuple(uuids))
-        return cursor.fetchall()
-    except Exception as e:
-        raise RuntimeError(f"Error fetching metadata: {e}")
-    finally:
-        conn.close()
+    return execute_query(query, tuple(uuids), fetch=True)
 
 
 def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=28, img_width=28):
-
     images = []
     labels = []
 
-    # Retrieve metadata
     placeholders = ','.join(['%s'] * len(uuids))
     query = f"SELECT id, label FROM input_data WHERE id IN ({placeholders});"
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query, tuple(uuids))
-        rows = cursor.fetchall()
-    except Exception as e:
-        raise RuntimeError(f"Error fetching image labels: {e}")
-    finally:
-        conn.close()
+    rows = execute_query(query, tuple(uuids), fetch=True)
 
-    # Load images and collect labels
     for uuid, label in rows:
         img_path = os.path.join(dataset_path, f"{uuid}.jpg")
         if not os.path.exists(img_path):
             print(f"Image has not been found for UUID {uuid}, skipping.")
             continue
 
-        # Load and preprocess the image
         img = tf.keras.utils.load_img(
             img_path, target_size=(img_height, img_width))
         img_array = tf.keras.utils.img_to_array(img) / 255.0
@@ -196,56 +141,21 @@ def load_images_and_labels_by_uuids(uuids, dataset_path, img_height=28, img_widt
         images.append(img_array)
         labels.append(label)
 
-    # Encode labels
     label_names = sorted(set(labels))
-    labels = np.array([label_names.index(label)
-                      for label in labels])
-    labels = tf.keras.utils.to_categorical(
-        labels, len(label_names))
+    labels = np.array([label_names.index(label) for label in labels])
+    labels = tf.keras.utils.to_categorical(labels, len(label_names))
 
-    # Convert images to numpy array
-    images = np.array(images, dtype=np.float32)
-
-    return images, labels
-
-
-def fetch_label_map(uuids):
-    placeholders = ','.join(['%s'] * len(uuids))
-    query = f"SELECT id, label FROM input_data WHERE id IN ({placeholders});"
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(query, tuple(uuids))
-        rows = cursor.fetchall()
-    except Exception as e:
-        raise RuntimeError(f"Error fetching image labels: {e}")
-    finally:
-        conn.close()
-
-    valid_rows = [row for row in rows if row[1] != 'unknown']
-    excluded_uuids = [row[0]
-                      for row in rows if row[1] == 'unknown']
-    print(f"Excluded {len(excluded_uuids)
-                      } UUIDs with 'unknown' label: {excluded_uuids}")
-
-    label_map = {row[0]: int(row[1]) for row in valid_rows}
-    return label_map
+    return np.array(images, dtype=np.float32), labels
 
 
 def overview_image(output_file="overview.png", img_width=28, img_height=28):
-
-    metadata_query = """
+    query = """
     SELECT DISTINCT ON (label) id, label
     FROM input_data
     """
-    try:
-        conn, cursor = create_connection()
-        cursor.execute(metadata_query)
-        metadata = cursor.fetchall()
-    except Exception as e:
-        print(f"Error fetching metadata: {e}")
-        return
-    finally:
-        conn.close()
+    metadata = execute_query(query, fetch=True)
+
+    print(metadata)
 
     if not metadata:
         print("No metadata found.")

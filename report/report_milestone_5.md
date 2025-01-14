@@ -169,19 +169,12 @@ and prefetches data to enhance performance during training. This implementation 
 When adjusting the backend, it is important to consider how to handle newly added, unlabeled data. 
 This data is provided by users, either through uploads on the website or via the API. 
 Like any other data, it is added to the `input_data` and `prediction` tables.   
-For this data, the label is defined as "unknown." To observe all user-uploaded data, you can use the following SQL command:
+The default label for new unseen data is set to "0." To identify and differentiate all unlabeled user-uploaded data from the labeled data, the `is_training` column was modified from a binary value to an integer value. You can view the unlabeled data using the following command.
 ```sql
-SELECT * FROM input_data WHERE label = 'unknown'
+SELECT * FROM input_data WHERE is_training = '2'
 ```
-After identifying the unlabeled data, you can manually label the newly provided data to increase the training dataset size. 
-However, the column `is_training` contains a binary value, where `TRUE` (1) indicates that all newly added data is automatically classified as training data. 
-This approach can lead to issues because the algorithm expects 10 classes, not 11 (with "unknown" being the 11th class), and does not know how to handle the "unknown" class. 
-Therefore, it is necessary to filter out all rows labelled as "unknown" beforehand.  
-This filtering can be achieved with the function `fetch_label_map()`, which retrieves and processes label information for a specified set of UUIDs while excluding any invalid entries with the label "unknown." 
-This ensures that only valid data (i.e., those with non-unknown labels) is used for model training or evaluation.  
-Subsequently, the model training is performed using the weights and bias procedure developed in the previous milestone. 
-Additionally, a confusion matrix is generated for the final model, along with an overview image of all classes. 
-Both of these images are saved in the `images` directory. The trained model is stored in the `models` directory, from which it is loaded by the Flask application.
+After identifying the unlabeled data, you can manually label the newly provided data to increase the size of the training dataset. In previous milestones, the column `is_training` was defined as a binary column, where `TRUE` (1) indicates that all newly added data is automatically classified as training data. In this last milestone, this column was changed to an integer column, where 1 represents training data, 0 represents testing data, and 2 represents unknown or unseen images. An alternative to this change would have been to add an additional binary column called `is_unknown`, which would be set to False for all testing and training data and True for all newly added unseen data.  
+These database changes ensure that only valid data (i.e., data with non-unknown labels) is used for model training or evaluation. Subsequently, model training is performed using the weights and bias procedure developed in the previous milestone. Additionally, a confusion matrix is generated for the final model, along with an overview image of all classes. Both of these images are saved in the `images` directory. The trained model is stored in the `models` directory, from which it is loaded by the Flask application.
 
 ## Task 6 Limitation of the project
 One significant downside of the current application is that it allows any kind of image to be uploaded, including non-digit images, 

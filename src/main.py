@@ -1,24 +1,25 @@
-from cnn_operations import download_data, test_model_func, train_model_wandb
-from db_operations import overview_image, create_table, create_predictions_table
+from cnn_operations import test_model, train_model_wandb
+from db_operations import create_table, create_predictions_table, overview_image
+from data_loader import download_data
 
 
 def main():
 
-    # Create the database tables if they don't exist yet
+    # Create tables if not exist yet
     create_table()
     create_predictions_table()
 
-    # Save the images to the dataset folder and store the metadata in the database
+    # # Download , process and store data and metadata in the database
     download_data()
 
-    # Draw an overview image of the dataset
+    # # Save class overview image
     overview_image()
 
-    # Train the model and log the results to Weights & Biases
+    # # Train the model with Weights and Biases
     train_model_wandb()
 
-    # Test the model on the test dataset
-    test_model_func()
+    # Test the model
+    test_model()
 
 
 if __name__ == "__main__":
